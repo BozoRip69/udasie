@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoPart Battery - Login</title>
+  <title>AutoPart Battery - Rejestracja</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     * {
@@ -91,6 +91,16 @@
       background: #dfe9ff;
     }
 
+    .error {
+      color: #ffbaba;
+      background: rgba(255, 0, 0, 0.15);
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      display: none;
+      font-size: 0.9rem;
+    }
+
     .links {
       margin-top: 20px;
       font-size: 0.9rem;
@@ -123,26 +133,58 @@
 
   <div class="login-container">
     <img src="logo.png" alt="AutoPart Battery Logo">
-    <h2>Zarejestruj się do konta</h2>
-    <form>
+    <h2>Utwórz konto</h2>
+    
+    <form id="registerForm">
       <div class="form-group">
-        <label for="email">Adres Email</label>
+        <label for="email">Adres email</label>
         <input type="email" id="email" placeholder="adres@email.com" required>
       </div>
+
       <div class="form-group">
         <label for="password">Hasło</label>
         <input type="password" id="password" placeholder="••••••••" required>
       </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Powtórz hasło</label>
+        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+      </div>
+
       <button type="submit" class="login-btn">Zarejestruj się</button>
+
+      <div class="error" id="error-message">Hasła nie są takie same!</div>
     </form>
+
     <div class="links">
       <a href="#">Nie pamiętasz hasła?</a>
     </div>
     <div class="links">
-        <p>Masz już konto?</p>
+      <p>Masz już konto?</p>
       <a href="login.html">Zaloguj się</a>
     </div>
   </div>
 
+  <script>
+    const form = document.getElementById("registerForm");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const error = document.getElementById("error-message");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      if (password.value !== confirmPassword.value) {
+        error.style.display = "block";
+        confirmPassword.style.border = "2px solid #ff7070";
+      } else {
+        error.style.display = "none";
+        confirmPassword.style.border = "none";
+        alert("Rejestracja zakończona sukcesem!");
+        // Możesz tu dodać przekierowanie lub wysyłkę danych
+        window.location.href = "login.html";
+      }
+    });
+  </script>
 </body>
 </html>
