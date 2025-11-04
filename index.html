@@ -1,118 +1,161 @@
-<!doctype html>
-<html lang="pl">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rejestracja produktu — przykładowa strona</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoPart Battery - Choose Region</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0046ad;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 20px 40px;
+    }
+
+    header img {
+      height: 60px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 40px;
+    }
+
+    .regions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .region-btn {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      padding: 12px 28px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .region-btn:hover {
+      background: white;
+      color: #0046ad;
+    }
+
+    .bottom-image {
+      position: relative;
+      width: 100%;
+      height: 40vh;
+      background: url('background.png') center/cover no-repeat;
+    }
+
+    /* Cookie banner */
+    .cookie-banner {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      max-width: 300px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .cookie-banner button {
+      margin-left: auto;
+      background: #0046ad;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cookie-banner button:hover {
+      background: white;
+      color: #0046ad;
+    }
+
+    .cookie-icon {
+      font-size: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .region-btn {
+        width: 80%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card" role="main">
-      <div class="left">
-        <div class="brand">
-          <div class="logo">BK</div>
-          <div>
-            <div style="font-size:13px;color:var(--muted)">Przykład &mdash; rejestracja produktu</div>
-            <h1>Zarejestruj swój produkt</h1>
-            <p class="lead">Wypełnij krótki formularz, aby skorzystać z gwarancji i otrzymać wsparcie.</p>
-          </div>
-        </div>
 
-        <form id="regForm" novalidate>
-          <div class="grid-2">
-            <div>
-              <label for="firstName">Imię</label>
-              <input id="firstName" name="firstName" type="text" autocomplete="given-name">
-              <div class="field-error" data-error-for="firstName"></div>
-            </div>
-            <div>
-              <label for="lastName">Nazwisko</label>
-              <input id="lastName" name="lastName" type="text" autocomplete="family-name">
-              <div class="field-error" data-error-for="lastName"></div>
-            </div>
-          </div>
+  <header>
+    <img src="logo.png" alt="AutoPart Battery Logo">
+  </header>
 
-          <div class="grid-2">
-            <div>
-              <label for="email">E‑mail</label>
-              <input id="email" name="email" type="email" autocomplete="email">
-              <div class="field-error" data-error-for="email"></div>
-            </div>
-            <div>
-              <label for="phone">Telefon (opcjonalnie)</label>
-              <input id="phone" name="phone" type="text" autocomplete="tel">
-            </div>
-          </div>
-
-          <div>
-            <label for="productModel">Model produktu</label>
-            <input id="productModel" name="productModel" type="text">
-            <div class="field-error" data-error-for="productModel"></div>
-          </div>
-
-          <div class="grid-2">
-            <div>
-              <label for="serialNumber">Numer seryjny</label>
-              <input id="serialNumber" name="serialNumber" type="text">
-              <div class="field-error" data-error-for="serialNumber"></div>
-            </div>
-            <div>
-              <label for="purchaseDate">Data zakupu</label>
-              <input id="purchaseDate" name="purchaseDate" type="date">
-              <div class="field-error" data-error-for="purchaseDate"></div>
-            </div>
-          </div>
-
-          <div>
-            <label for="store">Miejsce zakupu (sklep)</label>
-            <input id="store" name="store" type="text">
-          </div>
-
-          <div>
-            <label>Paragon / dowód zakupu (opcjonalnie)</label>
-            <div class="file-wrap">
-              <label class="file-btn">
-                Wybierz plik <input id="receipt" name="receipt" type="file" accept="image/*,application/pdf" style="display:none">
-              </label>
-              <div class="small" id="fileName">Brak pliku</div>
-            </div>
-            <div class="field-error" data-error-for="receipt"></div>
-          </div>
-
-          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-            <input id="agree" name="agree" type="checkbox">
-            <label for="agree" class="small">Akceptuję politykę prywatności i warunki</label>
-          </div>
-          <div class="field-error" data-error-for="agree"></div>
-
-          <div class="actions">
-            <button type="button" class="btn" id="submitBtn">Zarejestruj</button>
-            <button type="button" class="btn ghost" id="resetBtn">Wyczyść</button>
-            <div style="margin-left:auto" class="small">Polityka prywatności • Kontakt</div>
-          </div>
-
-          <div class="success" id="successMsg">Dziękujemy — produkt został zarejestrowany.</div>
-        </form>
-      </div>
-
-      <aside class="right">
-        <div class="summary">
-          <strong>Podsumowanie</strong>
-          <div style="margin-top:8px" id="summaryList">Wypełnij formularz aby zobaczyć podsumowanie.</div>
-        </div>
-
-        <div>
-          <div class="small">Postęp wysyłki:</div>
-          <div class="progress" aria-hidden>
-            <i id="progressBar"></i>
-          </div>
-        </div>
-
-        <div class="note small">Wersja demonstracyjna — dane nie są wysyłane na serwer.</div>
-      </aside>
+  <main>
+    <h1>Choose region:</h1>
+    <div class="regions">
+      <button class="region-btn">Europe</button>
+      <button class="region-btn">Middle East</button>
+      <button class="region-btn">Asia</button>
+      <button class="region-btn">Africa</button>
+      <button class="region-btn">North America</button>
+      <button class="region-btn">South America</button>
+      <button class="region-btn">Australia</button>
     </div>
+  </main>
+
+  <div class="bottom-image"></div>
+
+  <div class="cookie-banner" id="cookie-banner">
+    <span class="cookie-icon">🍪</span>
+    <div>
+      This website uses cookies. By continuing to browse, you agree to their use in accordance with your browser settings.
+    </div>
+    <button id="accept-cookies">OK</button>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    document.getElementById('accept-cookies').addEventListener('click', () => {
+      document.getElementById('cookie-banner').style.display = 'none';
+      localStorage.setItem('cookiesAccepted', 'true');
+    });
+
+    if (localStorage.getItem('cookiesAccepted') === 'true') {
+      document.getElementById('cookie-banner').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
