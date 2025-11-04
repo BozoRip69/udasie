@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AutoPart Battery - Choose Region</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     * {
       margin: 0;
@@ -41,38 +42,46 @@
     }
 
     h1 {
-      font-size: 2rem;
-      margin-bottom: 40px;
+      font-size: 2.5rem;
+      margin-bottom: 50px;
+      font-weight: 700;
     }
 
     .regions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 25px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 30px 60px;
+      justify-items: center;
+      width: 80%;
+      max-width: 800px;
     }
 
     .region-btn {
-      background: transparent;
-      border: 2px solid white;
+      background: none;
+      border: none;
       color: white;
-      padding: 12px 28px;
-      border-radius: 6px;
       font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       cursor: pointer;
       transition: 0.3s;
     }
 
+    .region-btn i {
+      font-size: 1rem;
+    }
+
     .region-btn:hover {
-      background: white;
-      color: #0046ad;
+      color: #d0dfff;
+      transform: scale(1.05);
     }
 
     .bottom-image {
       position: relative;
       width: 100%;
       height: 40vh;
-      background: url('background.png') center/cover no-repeat;
+      background: url('background.jpg') center/cover no-repeat;
     }
 
     /* Cookie banner */
@@ -112,8 +121,15 @@
     }
 
     @media (max-width: 768px) {
-      .region-btn {
-        width: 80%;
+      .regions {
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .regions {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -127,13 +143,13 @@
   <main>
     <h1>Choose region:</h1>
     <div class="regions">
-      <button class="region-btn">Europe</button>
-      <button class="region-btn">Middle East</button>
-      <button class="region-btn">Asia</button>
-      <button class="region-btn">Africa</button>
-      <button class="region-btn">North America</button>
-      <button class="region-btn">South America</button>
-      <button class="region-btn">Australia</button>
+      <button class="region-btn"><i class="fa-regular fa-circle"></i> Europe</button>
+      <button class="region-btn"><i class="fa-solid fa-triangle-exclamation"></i> Middle East</button>
+      <button class="region-btn"><i class="fa-regular fa-compass"></i> North America</button>
+      <button class="region-btn"><i class="fa-solid fa-minus"></i> Asia</button>
+      <button class="region-btn"><i class="fa-regular fa-droplet"></i> Africa</button>
+      <button class="region-btn"><i class="fa-solid fa-wind"></i> South America</button>
+      <button class="region-btn"><i class="fa-solid fa-feather-pointed"></i> Australia</button>
     </div>
   </main>
 
@@ -142,7 +158,7 @@
   <div class="cookie-banner" id="cookie-banner">
     <span class="cookie-icon">🍪</span>
     <div>
-      Ta strona używa cookie. Korzystając z niej wyrażasz zgodę na ich używanie, zgodnie z aktualnymi ustawieniami przeglądarki.
+      This website uses cookies. By continuing to browse, you agree to their use in accordance with your browser settings.
     </div>
     <button id="accept-cookies">OK</button>
   </div>
