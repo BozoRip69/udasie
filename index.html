@@ -1,12 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rejestracja produktu — przykładowa strona</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    Dzień dobry polsko witamyyy
-    CHUJ W DUPIE CHLUPIE
+  <div class="container">
+    <div class="card" role="main">
+      <div class="left">
+        <div class="brand">
+          <div class="logo">BK</div>
+          <div>
+            <div style="font-size:13px;color:var(--muted)">Przykład &mdash; rejestracja produktu</div>
+            <h1>Zarejestruj swój produkt</h1>
+            <p class="lead">Wypełnij krótki formularz, aby skorzystać z gwarancji i otrzymać wsparcie.</p>
+          </div>
+        </div>
+
+        <form id="regForm" novalidate>
+          <div class="grid-2">
+            <div>
+              <label for="firstName">Imię</label>
+              <input id="firstName" name="firstName" type="text" autocomplete="given-name">
+              <div class="field-error" data-error-for="firstName"></div>
+            </div>
+            <div>
+              <label for="lastName">Nazwisko</label>
+              <input id="lastName" name="lastName" type="text" autocomplete="family-name">
+              <div class="field-error" data-error-for="lastName"></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="email">E‑mail</label>
+              <input id="email" name="email" type="email" autocomplete="email">
+              <div class="field-error" data-error-for="email"></div>
+            </div>
+            <div>
+              <label for="phone">Telefon (opcjonalnie)</label>
+              <input id="phone" name="phone" type="text" autocomplete="tel">
+            </div>
+          </div>
+
+          <div>
+            <label for="productModel">Model produktu</label>
+            <input id="productModel" name="productModel" type="text">
+            <div class="field-error" data-error-for="productModel"></div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="serialNumber">Numer seryjny</label>
+              <input id="serialNumber" name="serialNumber" type="text">
+              <div class="field-error" data-error-for="serialNumber"></div>
+            </div>
+            <div>
+              <label for="purchaseDate">Data zakupu</label>
+              <input id="purchaseDate" name="purchaseDate" type="date">
+              <div class="field-error" data-error-for="purchaseDate"></div>
+            </div>
+          </div>
+
+          <div>
+            <label for="store">Miejsce zakupu (sklep)</label>
+            <input id="store" name="store" type="text">
+          </div>
+
+          <div>
+            <label>Paragon / dowód zakupu (opcjonalnie)</label>
+            <div class="file-wrap">
+              <label class="file-btn">
+                Wybierz plik <input id="receipt" name="receipt" type="file" accept="image/*,application/pdf" style="display:none">
+              </label>
+              <div class="small" id="fileName">Brak pliku</div>
+            </div>
+            <div class="field-error" data-error-for="receipt"></div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+            <input id="agree" name="agree" type="checkbox">
+            <label for="agree" class="small">Akceptuję politykę prywatności i warunki</label>
+          </div>
+          <div class="field-error" data-error-for="agree"></div>
+
+          <div class="actions">
+            <button type="button" class="btn" id="submitBtn">Zarejestruj</button>
+            <button type="button" class="btn ghost" id="resetBtn">Wyczyść</button>
+            <div style="margin-left:auto" class="small">Polityka prywatności • Kontakt</div>
+          </div>
+
+          <div class="success" id="successMsg">Dziękujemy — produkt został zarejestrowany.</div>
+        </form>
+      </div>
+
+      <aside class="right">
+        <div class="summary">
+          <strong>Podsumowanie</strong>
+          <div style="margin-top:8px" id="summaryList">Wypełnij formularz aby zobaczyć podsumowanie.</div>
+        </div>
+
+        <div>
+          <div class="small">Postęp wysyłki:</div>
+          <div class="progress" aria-hidden>
+            <i id="progressBar"></i>
+          </div>
+        </div>
+
+        <div class="note small">Wersja demonstracyjna — dane nie są wysyłane na serwer.</div>
+      </aside>
+    </div>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
