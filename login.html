@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoPart Battery - Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(180deg, #0046ad 60%, #003b93 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 40px 50px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .login-container img {
+      height: 60px;
+      margin-bottom: 30px;
+    }
+
+    .login-container h2 {
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #dfe9ff;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      color: #003b93;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .form-group input:focus {
+      background: white;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    }
+
+    .login-btn {
+      width: 100%;
+      background: white;
+      color: #0046ad;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      background: #dfe9ff;
+    }
+
+    .links {
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
+
+    .links a {
+      color: #fff;
+      text-decoration: underline;
+      opacity: 0.8;
+      transition: 0.2s;
+    }
+
+    .links a:hover {
+      opacity: 1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <img src="logo.png" alt="AutoPart Battery Logo">
+    <h2>Zaloguj się do swojego konta</h2>
+    <form>
+      <div class="form-group">
+        <label for="email">Adres Email</label>
+        <input type="email" id="email" placeholder="adres@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Hasło</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="login-btn">Zaloguj się</button>
+    </form>
+    <div class="links">
+      <a href="#">Nie pamiętasz hasła?</a>
+    </div>
+  </div>
+
+</body>
+</html>
