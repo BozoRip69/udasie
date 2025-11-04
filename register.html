@@ -135,20 +135,20 @@
     <img src="logo.png" alt="AutoPart Battery Logo">
     <h2>Utwórz konto</h2>
     
-    <form id="registerForm">
+    <form id="registerForm" action="register.php" method="POST">
       <div class="form-group">
         <label for="email">Adres email</label>
-        <input type="email" id="email" placeholder="adres@email.com" required>
+        <input type="email" id="email" name="email" placeholder="adres@email.com" required>
       </div>
 
       <div class="form-group">
         <label for="password">Hasło</label>
-        <input type="password" id="password" placeholder="••••••••" required>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
       </div>
 
       <div class="form-group">
         <label for="confirmPassword">Powtórz hasło</label>
-        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
       </div>
 
       <button type="submit" class="login-btn">Zarejestruj się</button>
@@ -165,26 +165,24 @@
     </div>
   </div>
 
-  <script>
-    const form = document.getElementById("registerForm");
-    const password = document.getElementById("password");
-    const confirmPassword = document.getElementById("confirmPassword");
-    const error = document.getElementById("error-message");
+<script>
+const form = document.getElementById("registerForm");
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
+const error = document.getElementById("error-message");
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
+form.addEventListener("submit", (e) => {
+  if (password.value !== confirmPassword.value) {
+    e.preventDefault(); // zatrzymuje wysyłanie formularza
+    error.style.display = "block";
+    confirmPassword.style.border = "2px solid #ff7070";
+  } else {
+    error.style.display = "none";
+    confirmPassword.style.border = "none";
+    // formularz zostanie wysłany do register.php
+  }
+});
+</script>
 
-      if (password.value !== confirmPassword.value) {
-        error.style.display = "block";
-        confirmPassword.style.border = "2px solid #ff7070";
-      } else {
-        error.style.display = "none";
-        confirmPassword.style.border = "none";
-        alert("Rejestracja zakończona sukcesem!");
-        // Możesz tu dodać przekierowanie lub wysyłkę danych
-        window.location.href = "login.html";
-      }
-    });
-  </script>
 </body>
 </html>
