@@ -84,7 +84,6 @@
       background: url('background.png') center/cover no-repeat;
     }
 
-    /* Cookie banner */
     .cookie-banner {
       position: fixed;
       left: 20px;
@@ -135,11 +134,9 @@
   </style>
 </head>
 <body>
-
   <header>
     <img src="logo.png" alt="AutoPart Battery Logo">
   </header>
-
   <main>
     <h1>Choose region:</h1>
     <div class="regions">
@@ -152,9 +149,7 @@
       <button class="region-btn" onclick="goToLogin()"><i class="fa-solid fa-feather-pointed"></i> Australia</button>
     </div>
   </main>
-
   <div class="bottom-image"></div>
-
   <div class="cookie-banner" id="cookie-banner">
     <span class="cookie-icon">🍪</span>
     <div>
@@ -162,19 +157,14 @@
     </div>
     <button id="accept-cookies">OK</button>
   </div>
-
   <script>
-    // Redirect to login page
     function goToLogin() {
       window.location.href = "login.html";
     }
-
-    // Cookie consent
     document.getElementById('accept-cookies').addEventListener('click', () => {
       document.getElementById('cookie-banner').style.display = 'none';
       localStorage.setItem('cookiesAccepted', 'true');
     });
-
     if (localStorage.getItem('cookiesAccepted') === 'true') {
       document.getElementById('cookie-banner').style.display = 'none';
     }

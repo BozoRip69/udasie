@@ -12,14 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // generowanie tokenu i zapis w bazie
     $token = bin2hex(random_bytes(32));
-    $expires = date("Y-m-d H:i:s", time() + 3600); // 1 godzina ważności
+    $expires = date("Y-m-d H:i:s", time() + 3600);
 
     $update = $db->prepare("UPDATE users SET reset_token = ?, reset_expires = ? WHERE email = ?");
     $update->execute([$token, $expires, $email]);
 
-    // w prawdziwej wersji wysyłamy e-mail, ale tu pokażemy link
     $resetLink = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset.html?token=$token";
 
     echo "<body style='background:#0046ad;color:white;text-align:center;font-family:Segoe UI;padding:40px;'>

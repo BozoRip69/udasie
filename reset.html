@@ -67,9 +67,8 @@
       <input type="password" name="confirm_password" placeholder="Powtórz nowe hasło" required>
       <button type="submit">Zmień hasło</button>
     </form>
-    <p><a href="login.html">Powrót do logowania</a></p>
+    <p><a href="login.php">Powrót do logowania</a></p>
   </div>
-
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     document.getElementById("token").value = urlParams.get("token") || "";

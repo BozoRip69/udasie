@@ -16,7 +16,6 @@ body.dark {
   --input-text: #e6edf3;
 }
 
-/* zastosowanie zmiennych */
 body {
   background: var(--bg-color);
   color: var(--text-color);
@@ -44,7 +43,6 @@ input[type="email"] {
   transition: background 0.3s, color 0.3s;
 }
 
-/* Przycisk trybu */
 .theme-toggle {
   background: transparent;
   border: none;

@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <h2>❌ Link resetujący wygasł lub jest nieprawidłowy</h2><a href='login.html' style='color:#fff;'>Powrót</a></body>");
     }
 
-    // ustaw nowe hasło
     $hash = password_hash($new, PASSWORD_DEFAULT);
     $update = $db->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?");
     $update->execute([$hash, $user['id']]);

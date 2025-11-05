@@ -56,7 +56,6 @@ $avatar = (!empty($profile['avatar']) && file_exists($profile['avatar'])) ? html
       </form>
     </div>
   </nav>
-
   <main>
     <div class="profile-box">
       <img src="<?php echo $avatar; ?>" alt="Awatar">
@@ -64,13 +63,11 @@ $avatar = (!empty($profile['avatar']) && file_exists($profile['avatar'])) ? html
       <p><?php echo htmlspecialchars($profile['email']); ?></p>
       <p><small>Zarejestrowano: <?php echo date('d.m.Y', strtotime($profile['created_at'])); ?></small></p>
       <p><small>Ostatnie logowanie: <?php echo $profile['last_login'] ? date('d.m.Y H:i', strtotime($profile['last_login'])) : 'Brak danych'; ?></small></p>
-
       <?php if (!empty($profile['bio'])): ?>
         <div class="bio">
           <strong>Opis:</strong><br><?php echo nl2br(htmlspecialchars($profile['bio'])); ?>
         </div>
       <?php endif; ?>
-
       <div class="stats">
         <div class="stat-box">
           <span>🚗 Samochody</span>
@@ -87,7 +84,6 @@ $avatar = (!empty($profile['avatar']) && file_exists($profile['avatar'])) ? html
       </div>
     </div>
   </main>
-
   <footer>© 2025 AutoPart Battery — Profil użytkownika</footer>
 </body>
 </html>

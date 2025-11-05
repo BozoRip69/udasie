@@ -10,9 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $u = $db->prepare("SELECT id FROM users WHERE email = ?");
     $u->execute([$email]);
     $user = $u->fetch(PDO::FETCH_ASSOC);
-    if (!$user) exit;
 
-    // jeśli reakcja już jest -> usuń; jeśli nie ma -> dodaj
+    if (!$user) exit;
     $check = $db->prepare("SELECT id FROM reactions WHERE post_id=? AND user_id=?");
     $check->execute([$post_id, $user['id']]);
     $ex = $check->fetch(PDO::FETCH_ASSOC);
