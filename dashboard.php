@@ -1,9 +1,6 @@
 <?php
 require 'config.php';
-if (empty($_SESSION['user_email'])) {
-    header("Location: login.html");
-    exit;
-}
+require_login($db); // jeśli nieprawidłowa sesja -> przekierowanie do login.html
 $user = htmlspecialchars($_SESSION['user_email']);
 ?>
 <!DOCTYPE html>

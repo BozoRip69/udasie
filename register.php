@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // sprawdź, czy email już istnieje
     $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
@@ -19,13 +18,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // 🔒 hashowanie hasła — to kluczowe
     $hash = password_hash($password, PASSWORD_DEFAULT);
-
     $stmt = $db->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
     $stmt->execute([$email, $hash]);
 
+    // pobierz id nowego usera
+    $userId = $db->lastInsertId();
+
+    // wygeneruj token i zapisz w DB
+    $token = generateSessionToken();
+    $update = $db->prepare("UPDATE users SET session_token = ? WHERE id = ?");
+    $update->execute([$token, $userId]);
+
+    // ustaw sesję
     $_SESSION['user_email'] = $email;
+    $_SESSION['session_token'] = $token;
+    session_regenerate_id(true);
+
     header("Location: dashboard.php");
     exit;
 }
