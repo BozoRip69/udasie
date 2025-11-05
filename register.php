@@ -1,38 +1,33 @@
 <?php
-$conn = new mysqli('192.168.13.106', 'remoteuser1', '', 'users'); // dostosuj nazwę bazy
+require 'config.php';
 
-if ($conn->connect_error) {
-    die("Błąd połączenia: " . $conn->connect_error);
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm = $_POST['confirmPassword'] ?? '';
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $confirmPassword = $_POST['confirmPassword'];
-
-    if ($password !== $confirmPassword) {
-        die("Hasła nie są takie same. <a href='rejestracja.html'>Wróć</a>");
+    if ($password !== $confirm) {
+        header("Location: register.html?err=pass");
+        exit;
     }
 
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-    // sprawdź, czy email istnieje
-    $check = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $check->bind_param("s", $email);
-    $check->execute();
-    $check->store_result();
-
-    if ($check->num_rows > 0) {
-        echo "Ten e-mail jest już zarejestrowany. <a href='login.html'>Zaloguj się</a>";
-    } else {
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        $username = explode('@', $email)[0]; // np. jan@example.com → jan
-        $stmt->bind_param("sss", $username, $email, $hashedPassword);
-        if ($stmt->execute()) {
-            echo "✅ Rejestracja udana! <a href='login.html'>Zaloguj się</a>";
-        } else {
-            echo "Błąd zapisu: " . $stmt->error;
-        }
+    // sprawdź, czy email już istnieje
+    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->fetch()) {
+        header("Location: register.html?err=exists");
+        exit;
     }
+
+    // 🔒 hashowanie hasła — to kluczowe
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+
+    $stmt = $db->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+    $stmt->execute([$email, $hash]);
+
+    $_SESSION['user_email'] = $email;
+    header("Location: dashboard.php");
+    exit;
 }
-?>
+
+header("Location: register.html");
