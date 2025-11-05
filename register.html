@@ -6,13 +6,7 @@
   <title>AutoPart Battery - Rejestracja</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Segoe UI", Arial, sans-serif;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
     body {
       background: linear-gradient(180deg, #0046ad 60%, #003b93 100%);
       color: white;
@@ -21,168 +15,88 @@
       justify-content: center;
       min-height: 100vh;
     }
-
-    .login-container {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .register-container {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
       backdrop-filter: blur(8px);
       border-radius: 16px;
       padding: 40px 50px;
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       text-align: center;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
       animation: fadeIn 0.8s ease forwards;
     }
-
-    .login-container img {
-      height: 60px;
-      margin-bottom: 30px;
-    }
-
-    .login-container h2 {
-      font-size: 1.8rem;
-      margin-bottom: 25px;
-    }
-
-    .form-group {
-      text-align: left;
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-      color: #dfe9ff;
-    }
-
+    .register-container img { height: 60px; margin-bottom: 25px; }
+    .register-container h2 { font-size: 1.8rem; margin-bottom: 20px; }
+    .form-group { text-align: left; margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 0.9rem; margin-bottom: 6px; color: #dfe9ff; }
     .form-group input {
-      width: 100%;
-      padding: 12px 14px;
-      border: none;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.9);
-      font-size: 1rem;
-      color: #003b93;
-      outline: none;
-      transition: 0.3s;
+      width: 100%; padding: 12px; border: none; border-radius: 8px;
+      background: rgba(255,255,255,0.9); font-size: 1rem; color: #003b93;
     }
-
-    .form-group input:focus {
-      background: white;
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    .form-group input:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.3); }
+    .register-btn {
+      width: 100%; background: white; color: #0046ad; border: none; border-radius: 8px;
+      padding: 12px; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 10px;
     }
-
-    .login-btn {
-      width: 100%;
-      background: white;
-      color: #0046ad;
-      border: none;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
-    }
-
-    .login-btn:hover {
-      background: #dfe9ff;
-    }
-
-    .error {
-      color: #ffbaba;
-      background: rgba(255, 0, 0, 0.15);
-      padding: 10px;
-      border-radius: 6px;
-      margin-top: 10px;
-      display: none;
-      font-size: 0.9rem;
-    }
-
-    .links {
-      margin-top: 20px;
-      font-size: 0.9rem;
-    }
-
-    .links a {
-      color: #fff;
-      text-decoration: underline;
-      opacity: 0.8;
-      transition: 0.2s;
-    }
-
-    .links a:hover {
-      opacity: 1;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 480px) {
-      .login-container {
-        padding: 30px 25px;
-      }
-    }
+    .register-btn:hover { background: #dfe9ff; }
+    .links { margin-top: 20px; font-size: 0.9rem; }
+    .links a { color: #fff; text-decoration: underline; opacity: 0.8; transition: 0.2s; }
+    .links a:hover { opacity: 1; }
+    @keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
   </style>
 </head>
 <body>
 
-  <div class="login-container">
+  <div class="register-container">
     <img src="logo.png" alt="AutoPart Battery Logo">
     <h2>Utwórz konto</h2>
-    
-    <form id="registerForm" action="register.php" method="POST">
+
+    <form action="register.php" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="first_name">Imię</label>
+        <input type="text" id="first_name" name="first_name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="last_name">Nazwisko</label>
+        <input type="text" id="last_name" name="last_name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Telefon</label>
+        <input type="tel" id="phone" name="phone" required>
+      </div>
+
       <div class="form-group">
         <label for="email">Adres email</label>
-        <input type="email" id="email" name="email" placeholder="adres@email.com" required>
+        <input type="email" id="email" name="email" required>
       </div>
 
       <div class="form-group">
         <label for="password">Hasło</label>
-        <input type="password" id="password" name="password" placeholder="••••••••" required>
+        <input type="password" id="password" name="password" required>
       </div>
 
       <div class="form-group">
         <label for="confirmPassword">Powtórz hasło</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
       </div>
 
-      <button type="submit" class="login-btn">Zarejestruj się</button>
+      <div class="form-group">
+        <label for="avatar">Awatar (opcjonalnie)</label>
+        <input type="file" id="avatar" name="avatar" accept="image/*">
+      </div>
 
-      <div class="error" id="error-message">Hasła nie są takie same!</div>
+      <button type="submit" class="register-btn">Zarejestruj się</button>
     </form>
 
-    <div class="links">
-      <a href="#">Nie pamiętasz hasła?</a>
-    </div>
     <div class="links">
       <p>Masz już konto?</p>
       <a href="login.html">Zaloguj się</a>
     </div>
   </div>
-
-<script>
-const form = document.getElementById("registerForm");
-const password = document.getElementById("password");
-const confirmPassword = document.getElementById("confirmPassword");
-const error = document.getElementById("error-message");
-
-form.addEventListener("submit", (e) => {
-  if (password.value !== confirmPassword.value) {
-    e.preventDefault(); // zatrzymuje wysyłanie formularza
-    error.style.display = "block";
-    confirmPassword.style.border = "2px solid #ff7070";
-  } else {
-    error.style.display = "none";
-    confirmPassword.style.border = "none";
-    // formularz zostanie wysłany do register.php
-  }
-});
-</script>
 
 </body>
 </html>

@@ -28,4 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+if ($user && password_verify($password, $user['password'])) {
+    // zapisz datę logowania
+    $db->prepare("UPDATE users SET last_login = NOW(), session_token = ? WHERE id = ?")
+       ->execute([$token = bin2hex(random_bytes(32)), $user['id']]);
+    $_SESSION['user_email'] = $user['email'];
+    $_SESSION['session_token'] = $token;
+    header("Location: dashboard.php");
+    exit;
+}
+
+
 header("Location: login.html");

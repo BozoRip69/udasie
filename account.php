@@ -1,56 +1,70 @@
 <?php
 require 'config.php';
-
-// wymaga funkcji require_login(PDO $db) w config.php
 require_login($db);
 
-// bieżący użytkownik (zabezpieczony)
-$userEmail = $_SESSION['user_email'] ?? '';
+$userEmail = $_SESSION['user_email'];
+$message = "";
 
-$message = ''; // HTML komunikatu (error/success) wyświetlany na stronie
+// Pobierz dane użytkownika
+$stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+$stmt->execute([$userEmail]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// obsługa zmiany hasła
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $current = $_POST['current_password'] ?? '';
-    $new = $_POST['new_password'] ?? '';
-    $confirm = $_POST['confirm_password'] ?? '';
+if (!$user) {
+    header("Location: login.html");
+    exit;
+}
 
-    // podstawowa walidacja
-    if (trim($current) === '' || trim($new) === '' || trim($confirm) === '') {
-        $message = "<div class='error'>❌ Wypełnij wszystkie pola.</div>";
-    } elseif ($new !== $confirm) {
-        $message = "<div class='error'>❌ Nowe hasła nie są takie same.</div>";
-    } elseif (strlen($new) < 6) {
-        $message = "<div class='error'>❌ Nowe hasło musi mieć co najmniej 6 znaków.</div>";
-    } else {
-        // pobierz użytkownika z bazy
-        $stmt = $db->prepare("SELECT id, password FROM users WHERE email = ? LIMIT 1");
-        $stmt->execute([$userEmail]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+// --- AKTUALIZACJA DANYCH OSOBOWYCH ---
+if (isset($_POST['update_profile'])) {
+    $first = trim($_POST['first_name']);
+    $last = trim($_POST['last_name']);
+    $phone = trim($_POST['phone']);
+    $avatarPath = $user['avatar'];
 
-        if (!$data) {
-            // niespodziewane - brak użytkownika
-            $message = "<div class='error'>❌ Użytkownik nie istnieje.</div>";
-        } else {
-            // sprawdź aktualne hasło
-            if (!password_verify($current, $data['password'])) {
-                $message = "<div class='error'>❌ Błędne aktualne hasło.</div>";
-            } else {
-                // wszystko OK — zaktualizuj hasło i unieważnij session_token
-                $newHash = password_hash($new, PASSWORD_DEFAULT);
-                $update = $db->prepare("UPDATE users SET password = ?, session_token = NULL WHERE id = ?");
-                $update->execute([$newHash, $data['id']]);
+    // Upload awatara
+    if (!empty($_FILES['avatar']['name'])) {
+        $uploadDir = 'uploads/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-                // zniszcz bieżącą sesję (wyloguje też inne urządzenia, bo token w DB został usunięty)
-                session_unset();
-                session_destroy();
+        $fileName = time() . '_' . basename($_FILES['avatar']['name']);
+        $targetPath = $uploadDir . $fileName;
 
-                // przekieruj do logowania z komunikatem
-                header("Location: login.html?msg=pass_changed");
-
-                exit;
+        if (move_uploaded_file($_FILES['avatar']['tmp_name'], $targetPath)) {
+            // usuń stary awatar, jeśli istnieje
+            if ($user['avatar'] && file_exists($user['avatar'])) {
+                unlink($user['avatar']);
             }
+            $avatarPath = $targetPath;
         }
+    }
+
+    $update = $db->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, avatar=? WHERE email=?");
+    $update->execute([$first, $last, $phone, $avatarPath, $userEmail]);
+    $message = "<div class='success'>✅ Dane zostały zaktualizowane.</div>";
+
+    // odśwież dane
+    $stmt->execute([$userEmail]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// --- ZMIANA HASŁA ---
+if (isset($_POST['change_password'])) {
+    $current = $_POST['current_password'];
+    $new = $_POST['new_password'];
+    $confirm = $_POST['confirm_password'];
+
+    if ($new !== $confirm) {
+        $message = "<div class='error'>❌ Nowe hasła nie są takie same.</div>";
+    } elseif (!password_verify($current, $user['password'])) {
+        $message = "<div class='error'>❌ Błędne aktualne hasło.</div>";
+    } else {
+        $hash = password_hash($new, PASSWORD_DEFAULT);
+        $db->prepare("UPDATE users SET password=?, session_token=NULL WHERE id=?")->execute([$hash, $user['id']]);
+        session_unset();
+        session_destroy();
+        header("Location: login.html?msg=pass_changed");
+        exit;
     }
 }
 ?>
@@ -62,101 +76,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Ustawienia konta - AutoPart Battery</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
+    * {margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif;}
     body {
-      background: linear-gradient(180deg, #0046ad 60%, #003b93 100%);
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background:linear-gradient(180deg,#0046ad 60%,#003b93 100%);
+      color:white;min-height:100vh;display:flex;flex-direction:column;
     }
     nav {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(6px);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:15px 40px;
-      border-bottom:1px solid rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.1);
+      backdrop-filter:blur(6px);
+      display:flex;justify-content:space-between;align-items:center;
+      padding:15px 40px;border-bottom:1px solid rgba(255,255,255,0.15);
       box-shadow:0 4px 10px rgba(0,0,0,0.2);
     }
-    nav img { height:45px; }
-    .nav-links { display:flex; align-items:center; gap:20px; }
-    .nav-links a { color:#fff; text-decoration:none; font-weight:500; transition:0.2s; }
-    .nav-links a:hover { color:#dfe9ff; }
-    .logout-btn {
-      background: white;
-      color: #0046ad;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.9rem;
-      cursor: pointer;
+    nav img{height:45px;}
+    .nav-links{display:flex;align-items:center;gap:20px;}
+    .nav-links a{color:#fff;text-decoration:none;font-weight:500;transition:0.2s;}
+    .nav-links a:hover{color:#dfe9ff;}
+    .logout-btn{background:white;color:#0046ad;border:none;border-radius:8px;padding:8px 14px;font-size:0.9rem;cursor:pointer;}
+    main{flex:1;display:flex;justify-content:center;align-items:flex-start;padding:60px 20px;}
+    .settings-container{
+      background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+      backdrop-filter:blur(8px);border-radius:16px;padding:36px 44px;
+      width:100%;max-width:800px;text-align:center;box-shadow:0 8px 25px rgba(0,0,0,0.3);
+      animation:fadeIn 0.8s ease forwards;
     }
-    main {
-      flex:1;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      padding:60px 20px;
+    .settings-container h1{font-size:1.8rem;margin-bottom:20px;}
+    .profile-avatar img{
+      width:120px;height:120px;border-radius:50%;object-fit:cover;
+      border:3px solid rgba(255,255,255,0.7);margin-bottom:15px;
     }
-    .settings-container {
-      background: rgba(255,255,255,0.1);
-      border:1px solid rgba(255,255,255,0.2);
-      backdrop-filter: blur(8px);
-      border-radius:16px;
-      padding:36px 44px;
-      width:100%;
-      max-width:640px;
-      text-align:center;
-      box-shadow:0 8px 25px rgba(0,0,0,0.3);
-      animation: fadeIn 0.8s ease forwards;
+    .stats{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:15px;margin:25px 0;
     }
-    .settings-container h1 { font-size:1.8rem; margin-bottom:16px; }
-    .settings-container p { margin-bottom:20px; opacity:0.9; }
-    form { text-align:left; margin-top:10px; }
-    label { display:block; font-size:0.9rem; margin-bottom:6px; color:#dfe9ff; }
-    input {
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:8px;
-      background:rgba(255,255,255,0.9);
-      font-size:1rem;
-      color:#003b93;
-      margin-bottom:14px;
-    }
-    input:focus { outline:none; box-shadow:0 0 0 3px rgba(255,255,255,0.3); }
-    .save-btn {
-      width:100%;
-      background:white;
-      color:#0046ad;
-      border:none;
-      border-radius:8px;
-      padding:12px;
-      font-size:1rem;
-      cursor:pointer;
-    }
-    .save-btn:hover { background:#dfe9ff; }
-    .error, .success {
-      margin-top:14px;
-      padding:12px;
-      border-radius:8px;
+    .stat-box{
+      background:rgba(255,255,255,0.1);
+      padding:15px;border-radius:12px;
+      border:1px solid rgba(255,255,255,0.15);
       font-size:0.95rem;
-      animation: fadeIn 0.4s ease;
     }
-    .error { background:rgba(255,0,0,0.12); color:#ffdede; }
-    .success { background:rgba(0,255,0,0.12); color:#baffba; }
-    footer { text-align:center; padding:20px; font-size:0.85rem; opacity:0.75; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:none;} }
-    @media (max-width:600px) {
-      nav { padding:15px 20px; flex-direction:column; gap:10px; }
-      .settings-container { padding:22px; }
+    .stat-box strong{font-size:1.4rem;display:block;margin-top:8px;}
+    form{text-align:left;margin-top:15px;}
+    label{display:block;font-size:0.9rem;margin-bottom:6px;color:#dfe9ff;}
+    input{
+      width:100%;padding:12px;border:none;border-radius:8px;
+      background:rgba(255,255,255,0.9);font-size:1rem;color:#003b93;margin-bottom:14px;
     }
+    input:focus{outline:none;box-shadow:0 0 0 3px rgba(255,255,255,0.3);}
+    .save-btn{
+      width:100%;background:white;color:#0046ad;border:none;border-radius:8px;
+      padding:12px;font-size:1rem;cursor:pointer;margin-top:10px;
+    }
+    .save-btn:hover{background:#dfe9ff;}
+    .error,.success{
+      margin-top:14px;padding:12px;border-radius:8px;font-size:0.95rem;animation:fadeIn 0.4s ease;
+    }
+    .error{background:rgba(255,0,0,0.12);color:#ffdede;}
+    .success{background:rgba(0,255,0,0.12);color:#baffba;}
+    footer{text-align:center;padding:20px;font-size:0.85rem;opacity:0.75;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+    @media(max-width:600px){nav{padding:15px 20px;flex-direction:column;gap:10px;}.settings-container{padding:22px;}}
   </style>
 </head>
 <body>
-
   <nav>
     <img src="logo.png" alt="AutoPart Battery">
     <div class="nav-links">
@@ -170,10 +152,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <main>
     <div class="settings-container">
-      <h1>Ustawienia konta</h1>
-      <p><strong>Zalogowano jako:</strong> <?php echo htmlspecialchars($userEmail); ?></p>
+      <div class="profile-avatar">
+        <img src="<?php echo $user['avatar'] ? htmlspecialchars($user['avatar']) : 'default-avatar.png'; ?>" alt="Awatar">
+      </div>
 
-      <form method="post" autocomplete="off">
+      <h1><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h1>
+      <p><?php echo htmlspecialchars($user['email']); ?></p>
+      <p><small>Zarejestrowano: <?php echo date('d.m.Y', strtotime($user['created_at'])); ?></small></p>
+      <p><small>Ostatnie logowanie: <?php echo $user['last_login'] ? date('d.m.Y H:i', strtotime($user['last_login'])) : 'Brak danych'; ?></small></p>
+
+      <div class="stats">
+        <div class="stat-box">
+          <span>🚗 Samochody</span>
+          <strong><?php echo (int)$user['car_count']; ?></strong>
+        </div>
+        <div class="stat-box">
+          <span>🔋 Akumulatory</span>
+          <strong><?php echo (int)$user['battery_count']; ?></strong>
+        </div>
+        <div class="stat-box">
+          <span>📍 Kilometry</span>
+          <strong><?php echo (int)$user['total_km']; ?> km</strong>
+        </div>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 25px 0;">
+
+      <h2 style="margin-bottom:10px;">Edycja danych</h2>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="update_profile" value="1">
+        <label for="first_name">Imię</label>
+        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
+
+        <label for="last_name">Nazwisko</label>
+        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
+
+        <label for="phone">Telefon</label>
+        <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
+
+        <label for="avatar">Zmień awatar</label>
+        <input type="file" id="avatar" name="avatar" accept="image/*">
+
+        <button type="submit" class="save-btn">Zapisz zmiany</button>
+      </form>
+
+      <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 25px 0;">
+
+      <h2 style="margin-bottom:10px;">Zmiana hasła</h2>
+      <form method="POST">
+        <input type="hidden" name="change_password" value="1">
         <label for="current_password">Aktualne hasło</label>
         <input type="password" id="current_password" name="current_password" required>
 
@@ -186,21 +213,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit" class="save-btn">Zmień hasło</button>
       </form>
 
-      <?php
-        if ($message) {
-            echo $message;
-        }
-      ?>
-
-      <div style="margin-top:18px; text-align:left; font-size:0.95rem; opacity:0.9;">
-        <p><strong>Uwaga:</strong> Po zmianie hasła zostaniesz wylogowany(-a) ze wszystkich urządzeń.</p>
-      </div>
+      <?php echo $message; ?>
     </div>
   </main>
 
   <footer>
     © 2025 AutoPart Battery — Panel użytkownika
   </footer>
-
 </body>
 </html>
