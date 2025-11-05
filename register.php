@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli('localhost', 'root', '', 'users'); // dostosuj nazwę bazy
+$conn = new mysqli('192.168.13.106', 'remoteuser1', '', 'users'); // dostosuj nazwę bazy
 
 if ($conn->connect_error) {
     die("Błąd połączenia: " . $conn->connect_error);
