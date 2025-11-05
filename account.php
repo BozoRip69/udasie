@@ -41,8 +41,13 @@ if (isset($_POST['update_profile'])) {
 
     $bio = trim($_POST['bio'] ?? '');
 
-    $update = $db->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, avatar=?, bio=? WHERE email=?");
-    $update->execute([$first, $last, $phone, $avatarPath, $bio, $userEmail]);
+    $countryCode = $_POST['country_code'] ?? '+48';
+    $address = trim($_POST['address'] ?? '');
+    $bio = trim($_POST['bio'] ?? '');
+
+    $update = $db->prepare("UPDATE users SET first_name=?, last_name=?, country_code=?, phone=?, address=?, avatar=?, bio=? WHERE email=?");
+    $update->execute([$first, $last, $countryCode, $phone, $address, $avatarPath, $bio, $userEmail]);
+
 
     $message = "<div class='success'>✅ Dane zostały zaktualizowane.</div>";
 
@@ -139,6 +144,66 @@ if (isset($_POST['change_password'])) {
     footer{text-align:center;padding:20px;font-size:0.85rem;opacity:0.75;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
     @media(max-width:600px){nav{padding:15px 20px;flex-direction:column;gap:10px;}.settings-container{padding:22px;}}
+    /* Grupa telefonu */
+.phone-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+/* kontener dla select + input */
+.phone-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* select z flagą */
+.phone-input-wrapper select {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 5px 10px;
+  font-size: 1rem;
+  color: #003b93;
+  width: 100px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* telefon po prawej */
+.phone-input-wrapper input[type="text"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 14px;
+  font-size: 1rem;
+  color: #003b93;
+  outline: none;
+}
+
+/* hover i focus */
+.phone-input-wrapper select:focus,
+.phone-input-wrapper input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 1);
+}
+
+/* dla mobile */
+@media (max-width: 480px) {
+  .phone-input-wrapper {
+    flex-direction: row;
+  }
+  .phone-input-wrapper select {
+    width: 85px;
+    font-size: 0.95rem;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -192,8 +257,35 @@ if (isset($_POST['change_password'])) {
   <label for="last_name">Nazwisko</label>
   <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
 
-  <label for="phone">Telefon</label>
-  <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
+    <div class="form-group phone-group">
+  <label for="phone">Numer telefonu</label>
+  <div class="phone-input-wrapper">
+    <select id="country_code" name="country_code" required>
+      <?php
+      $codes = [
+        '+48' => '🇵🇱 +48',
+        '+49' => '🇩🇪 +49',
+        '+44' => '🇬🇧 +44',
+        '+420' => '🇨🇿 +420',
+        '+421' => '🇸🇰 +421',
+        '+33' => '🇫🇷 +33',
+        '+39' => '🇮🇹 +39',
+        '+1'  => '🇺🇸 +1'
+      ];
+      foreach ($codes as $c => $label) {
+        $sel = ($user['country_code'] === $c) ? 'selected' : '';
+        echo "<option value='$c' $sel>$label</option>";
+      }
+      ?>
+    </select>
+    <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
+  </div>
+</div>
+
+
+    <label for="address">Adres zamieszkania</label>
+    <input type="text" id="address" name="address" value="<?php echo htmlspecialchars($user['address']); ?>" required>
+
 
   <label for="avatar">Zmień awatar</label>
   <input type="file" id="avatar" name="avatar" accept="image/*">

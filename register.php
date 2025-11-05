@@ -41,10 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $created = date('Y-m-d H:i:s');
     $token = bin2hex(random_bytes(32));
 
-    $stmt = $db->prepare("INSERT INTO users (first_name, last_name, email, phone, password, avatar, created_at, session_token)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$first, $last, $email, $phone, $hash, $avatarPath, $created, $token]);
+    $countryCode = $_POST['country_code'] ?? '+48';
+    $address = trim($_POST['address'] ?? '');
 
+    $stmt = $db->prepare("INSERT INTO users (first_name, last_name, email, country_code, phone, address, password, avatar, created_at, session_token)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$first, $last, $email, $countryCode, $phone, $address, $hash, $avatarPath ?: $defaultAvatar, $created, $token]);
+        
     $_SESSION['user_email'] = $email;
     $_SESSION['session_token'] = $token;
 
