@@ -2,7 +2,6 @@
 require 'config.php';
 require_login($db);
 
-// pobierz wszystkich użytkowników
 $stmt = $db->query("SELECT id, first_name, last_name, email, phone, avatar, created_at, last_login, car_count, battery_count, total_km FROM users ORDER BY created_at DESC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -41,7 +40,6 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <form method="post" action="logout.php" style="display:inline"><button style="background:#fff;color:#0046ad;border:0;padding:8px 12px;border-radius:8px;cursor:pointer">Wyloguj</button></form>
     </div>
   </nav>
-
   <main>
     <div class="card">
       <h2 style="margin-bottom:12px">Lista użytkowników</h2>
@@ -67,9 +65,9 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <img src="<?php echo $u['avatar'] ? htmlspecialchars($u['avatar']) : 'default-avatar.png'; ?>" alt="a" class="avatar">
                   <div>
                     <a href="profile.php?id=<?php echo $u['id']; ?>" style="color:white;text-decoration:none;font-weight:600;">
-  <?php echo htmlspecialchars(trim($u['first_name'].' '.$u['last_name'])); ?>
-</a>
-<br>
+                      <?php echo htmlspecialchars(trim($u['first_name'].' '.$u['last_name'])); ?>
+                    </a>
+                    <br>
                     <span class="small"><?php echo htmlspecialchars($u['email']); ?></span>
                   </div>
                 </div>

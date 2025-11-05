@@ -6,14 +6,12 @@
   <title>AutoPart Battery - Rejestracja</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    /* Grupa telefonu */
 .phone-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 18px;
 }
 
-/* kontener dla select + input */
 .phone-input-wrapper {
   display: flex;
   align-items: center;
@@ -23,7 +21,6 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* select z flagą */
 .phone-input-wrapper select {
   appearance: none;
   border: none;
@@ -37,7 +34,6 @@
   font-weight: 500;
 }
 
-/* telefon po prawej */
 .phone-input-wrapper input[type="text"] {
   flex: 1;
   border: none;
@@ -48,14 +44,12 @@
   outline: none;
 }
 
-/* hover i focus */
 .phone-input-wrapper select:focus,
 .phone-input-wrapper input:focus {
   outline: none;
   background: rgba(255, 255, 255, 1);
 }
 
-/* dla mobile */
 @media (max-width: 480px) {
   .phone-input-wrapper {
     flex-direction: row;
@@ -65,7 +59,6 @@
     font-size: 0.95rem;
   }
 }
-
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
     body {
       background: linear-gradient(180deg, #0046ad 60%, #003b93 100%);
@@ -108,7 +101,6 @@
   </style>
 </head>
 <body>
-
   <div class="register-container">
     <img src="logo.png" alt="AutoPart Battery Logo">
     <h2>Utwórz konto</h2>
@@ -123,7 +115,6 @@
         <label for="last_name">Nazwisko</label>
         <input type="text" id="last_name" name="last_name" required>
       </div>
-
 <div class="form-group phone-group">
   <label for="phone">Numer telefonu</label>
   <div class="phone-input-wrapper">
@@ -140,30 +131,24 @@
     <input type="text" id="phone" name="phone" placeholder="123 456 789" required>
   </div>
 </div>
-
       <div class="form-group">
         <label for="email">Adres email</label>
         <input type="email" id="email" name="email" required>
       </div>
-
       <div class="form-group">
         <label for="password">Hasło</label>
         <input type="password" id="password" name="password" required>
       </div>
-
       <div class="form-group">
         <label for="confirmPassword">Powtórz hasło</label>
         <input type="password" id="confirmPassword" name="confirmPassword" required>
       </div>
-
       <div class="form-group">
         <label for="avatar">Awatar (opcjonalnie)</label>
         <input type="file" id="avatar" name="avatar" accept="image/*">
       </div>
-
       <button type="submit" class="register-btn">Zarejestruj się</button>
     </form>
-
     <div class="links">
       <p>Masz już konto?</p>
       <a href="login.html">Zaloguj się</a>
@@ -173,13 +158,10 @@
 const phoneInput = document.getElementById("phone");
 
 phoneInput.addEventListener("input", () => {
-  // usuń wszystko oprócz cyfr
   let digits = phoneInput.value.replace(/\D/g, "");
 
-  // maks. 9 cyfr
   if (digits.length > 9) digits = digits.slice(0, 9);
 
-  // automatyczne formatowanie: 123 456 789
   const parts = [];
   for (let i = 0; i < digits.length; i += 3) {
     parts.push(digits.substring(i, i + 3));
@@ -188,7 +170,6 @@ phoneInput.addEventListener("input", () => {
 });
 
 phoneInput.addEventListener("keypress", (e) => {
-  // blokada liter
   if (!/[0-9]/.test(e.key)) {
     e.preventDefault();
   }
@@ -202,6 +183,5 @@ document.querySelector("form").addEventListener("submit", (e) => {
   }
 });
 </script>
-
 </body>
 </html>

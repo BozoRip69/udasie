@@ -141,28 +141,22 @@
   </style>
 </head>
 <body>
-
   <div class="login-container">
     <img src="logo.png" alt="AutoPart Battery Logo">
     <h2>Zaloguj się</h2>
-
     <form action="login.php" method="POST">
       <div class="form-group">
         <label for="email">Adres email</label>
         <input type="email" id="email" name="email" placeholder="adres@email.com" required>
       </div>
-
       <div class="form-group">
         <label for="password">Hasło</label>
         <input type="password" id="password" name="password" placeholder="••••••••" required>
       </div>
-
       <button type="submit" class="login-btn">Zaloguj się</button>
-
       <div class="error" id="error-message">Nieprawidłowe dane logowania!</div>
       <div class="success" id="success-message">Hasło zostało pomyślnie zmienione. Zaloguj się ponownie.</div>
     </form>
-
     <div class="links">
       <a href="forgot.html">Nie pamiętasz hasła?</a>
     </div>
@@ -171,9 +165,7 @@
       <a href="register.html">Zarejestruj się</a>
     </div>
   </div>
-
   <script>
-    // sprawdź parametry w URL
     const params = new URLSearchParams(window.location.search);
     const error = params.get("err");
     const msg = params.get("msg");
@@ -186,6 +178,5 @@
       document.getElementById("success-message").style.display = "block";
     }
   </script>
-
 </body>
 </html>

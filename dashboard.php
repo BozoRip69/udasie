@@ -1,6 +1,6 @@
 <?php
 require 'config.php';
-require_login($db); // jeśli nieprawidłowa sesja -> przekierowanie do login.html
+require_login($db);
 $user = htmlspecialchars($_SESSION['user_email']);
 ?>
 <!DOCTYPE html>
@@ -21,7 +21,6 @@ $user = htmlspecialchars($_SESSION['user_email']);
       flex-direction: column;
     }
 
-    /* ======= NAVBAR ======= */
     nav {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(6px);
@@ -76,7 +75,6 @@ $user = htmlspecialchars($_SESSION['user_email']);
       background: #dfe9ff;
     }
 
-    /* ======= MAIN ======= */
     main {
       flex: 1;
       display: flex;
@@ -148,8 +146,6 @@ $user = htmlspecialchars($_SESSION['user_email']);
   </style>
 </head>
 <body>
-
-  <!-- ======= GÓRNE MENU ======= -->
   <nav>
     <img src="logo.png" alt="AutoPart Battery">
     <div class="nav-links">
@@ -165,8 +161,6 @@ $user = htmlspecialchars($_SESSION['user_email']);
       </div>
     </div>
   </nav>
-
-  <!-- ======= ZAWARTOŚĆ STRONY ======= -->
   <main>
     <div class="dashboard-container">
       <h1>Witaj, <?php echo $user; ?>!</h1>
@@ -179,7 +173,6 @@ $user = htmlspecialchars($_SESSION['user_email']);
           Możesz przejść do ustawień konta, zmienić hasło lub wylogować się przyciskiem w prawym górnym rogu.
         </p>
       </div>
-
       <div class="info-box">
         <h3><i class="fa-solid fa-bolt"></i> Nadchodzące funkcje</h3>
         <ul style="margin-top:10px; text-align:left; line-height:1.6;">
@@ -191,10 +184,8 @@ $user = htmlspecialchars($_SESSION['user_email']);
       </div>
     </div>
   </main>
-
   <footer>
     © 2025 AutoPart Battery — Panel użytkownika
   </footer>
-
 </body>
 </html>
