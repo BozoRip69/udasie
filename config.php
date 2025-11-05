@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$host = "localhost";     // lub inny, jeśli używasz zewnętrznego serwera
+$host = "127.0.0.1";     // lub inny, jeśli używasz zewnętrznego serwera
 $user = "root";          // Twój login MySQL
 $pass = "";              // Twoje hasło MySQL
 $dbname = "autopart";

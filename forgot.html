@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset hasła - AutoPart Battery</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
+    body {
+      background: linear-gradient(180deg, #0046ad 60%, #003b93 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .reset-container {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 40px 50px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.8s ease forwards;
+    }
+    h2 { font-size: 1.6rem; margin-bottom: 20px; }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      color: #003b93;
+    }
+    button {
+      width: 100%;
+      background: white;
+      color: #0046ad;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #dfe9ff; }
+    p { margin-top: 15px; font-size: 0.9rem; }
+    a { color: #fff; text-decoration: underline; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="reset-container">
+    <h2>Reset hasła</h2>
+    <form action="forgot.php" method="POST">
+      <input type="email" name="email" placeholder="Podaj swój e-mail" required>
+      <button type="submit">Wyślij link resetujący</button>
+    </form>
+    <p><a href="login.html">Powrót do logowania</a></p>
+  </div>
+</body>
+</html>
