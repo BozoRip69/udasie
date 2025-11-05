@@ -169,6 +169,39 @@
       <a href="login.html">Zaloguj się</a>
     </div>
   </div>
+<script>
+const phoneInput = document.getElementById("phone");
+
+phoneInput.addEventListener("input", () => {
+  // usuń wszystko oprócz cyfr
+  let digits = phoneInput.value.replace(/\D/g, "");
+
+  // maks. 9 cyfr
+  if (digits.length > 9) digits = digits.slice(0, 9);
+
+  // automatyczne formatowanie: 123 456 789
+  const parts = [];
+  for (let i = 0; i < digits.length; i += 3) {
+    parts.push(digits.substring(i, i + 3));
+  }
+  phoneInput.value = parts.join(" ");
+});
+
+phoneInput.addEventListener("keypress", (e) => {
+  // blokada liter
+  if (!/[0-9]/.test(e.key)) {
+    e.preventDefault();
+  }
+});
+
+document.querySelector("form").addEventListener("submit", (e) => {
+  const digits = phoneInput.value.replace(/\D/g, "");
+  if (digits.length !== 9) {
+    e.preventDefault();
+    alert("Numer telefonu musi zawierać dokładnie 9 cyfr!");
+  }
+});
+</script>
 
 </body>
 </html>

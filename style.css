@@ -1,0 +1,60 @@
+:root {
+  --bg-color: linear-gradient(180deg,#0046ad 60%,#003b93 100%);
+  --card-bg: rgba(255,255,255,0.1);
+  --text-color: #ffffff;
+  --nav-bg: rgba(255,255,255,0.1);
+  --input-bg: rgba(255,255,255,0.9);
+  --input-text: #003b93;
+}
+
+body.dark {
+  --bg-color: linear-gradient(180deg,#0d1117 60%,#161b22 100%);
+  --card-bg: rgba(255,255,255,0.05);
+  --text-color: #e6edf3;
+  --nav-bg: rgba(255,255,255,0.05);
+  --input-bg: rgba(32,35,39,0.9);
+  --input-text: #e6edf3;
+}
+
+/* zastosowanie zmiennych */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.5s, color 0.5s;
+}
+
+nav {
+  background: var(--nav-bg);
+  transition: background 0.5s;
+}
+
+.card {
+  background: var(--card-bg);
+  transition: background 0.5s;
+}
+
+.phone-input-wrapper input,
+.phone-input-wrapper select,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  background: var(--input-bg);
+  color: var(--input-text);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Przycisk trybu */
+.theme-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: transform 0.3s;
+}
+
+.theme-toggle:hover {
+  transform: rotate(20deg);
+}
