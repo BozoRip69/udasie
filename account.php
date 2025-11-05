@@ -39,8 +39,11 @@ if (isset($_POST['update_profile'])) {
         }
     }
 
-    $update = $db->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, avatar=? WHERE email=?");
-    $update->execute([$first, $last, $phone, $avatarPath, $userEmail]);
+    $bio = trim($_POST['bio'] ?? '');
+
+    $update = $db->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, avatar=?, bio=? WHERE email=?");
+    $update->execute([$first, $last, $phone, $avatarPath, $bio, $userEmail]);
+
     $message = "<div class='success'>✅ Dane zostały zaktualizowane.</div>";
 
     // odśwież dane
@@ -142,6 +145,8 @@ if (isset($_POST['change_password'])) {
   <nav>
     <img src="logo.png" alt="AutoPart Battery">
     <div class="nav-links">
+      <a href="browse.php"><i class="fa-solid fa-newspaper"></i> Przeglądanie</a>
+      <a href="users.php"><i class="fa-solid fa-users"></i> Użytkownicy</a>  
       <a href="dashboard.php"><i class="fa-solid fa-gauge"></i> Panel główny</a>
       <a href="account.php"><i class="fa-solid fa-gear"></i> Ustawienia konta</a>
       <form method="post" action="logout.php" style="display:inline;">
@@ -177,24 +182,27 @@ if (isset($_POST['change_password'])) {
       </div>
 
       <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 25px 0;">
+<h2 style="margin-bottom:10px;">Edycja danych</h2>
+<form method="POST" enctype="multipart/form-data">
+  <input type="hidden" name="update_profile" value="1">
 
-      <h2 style="margin-bottom:10px;">Edycja danych</h2>
-      <form method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="update_profile" value="1">
-        <label for="first_name">Imię</label>
-        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
+  <label for="first_name">Imię</label>
+  <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
 
-        <label for="last_name">Nazwisko</label>
-        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
+  <label for="last_name">Nazwisko</label>
+  <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
 
-        <label for="phone">Telefon</label>
-        <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
+  <label for="phone">Telefon</label>
+  <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
 
-        <label for="avatar">Zmień awatar</label>
-        <input type="file" id="avatar" name="avatar" accept="image/*">
+  <label for="avatar">Zmień awatar</label>
+  <input type="file" id="avatar" name="avatar" accept="image/*">
 
-        <button type="submit" class="save-btn">Zapisz zmiany</button>
-      </form>
+  <label for="bio">Opis konta</label>
+  <textarea id="bio" name="bio" rows="4" style="width:100%;border:none;border-radius:8px;background:rgba(255,255,255,0.9);font-size:1rem;color:#003b93;padding:12px;margin-bottom:14px;"><?php echo htmlspecialchars($user['bio']); ?></textarea>
+
+  <button type="submit" class="save-btn">Zapisz zmiany</button>
+</form>
 
       <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 25px 0;">
 

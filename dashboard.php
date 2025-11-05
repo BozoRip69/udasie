@@ -153,6 +153,8 @@ $user = htmlspecialchars($_SESSION['user_email']);
   <nav>
     <img src="logo.png" alt="AutoPart Battery">
     <div class="nav-links">
+      <a href="browse.php"><i class="fa-solid fa-newspaper"></i> Przeglądanie</a>
+      <a href="users.php"><i class="fa-solid fa-users"></i> Użytkownicy</a>  
       <a href="dashboard.php"><i class="fa-solid fa-gauge"></i> Panel główny</a>
       <a href="account.php"><i class="fa-solid fa-gear"></i> Ustawienia konta</a>
       <div class="user-info">
