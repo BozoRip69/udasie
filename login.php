@@ -2,29 +2,20 @@
 require 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $email = trim($_POST['email']);
+    $pass = $_POST['password'];
 
-    $stmt = $db->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user['password'])) {
-        $token = generateSessionToken();
-
-        $update = $db->prepare("UPDATE users SET last_login = NOW(), session_token = ? WHERE id = ?");
-        $update->execute([$token, $user['id']]);
-
+    if ($user && password_verify($pass, $user['password'])) {
         $_SESSION['user_email'] = $user['email'];
-        $_SESSION['session_token'] = $token;
-        session_regenerate_id(true);
-
+        $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")->execute([$user['id']]);
         header("Location: dashboard.php");
         exit;
     } else {
-        header("Location: login.html?err=invalid");
-        exit;
+        die("<script>alert('Błędny e-mail lub hasło!');history.back();</script>");
     }
 }
-
-header("Location: login.html");
+?>

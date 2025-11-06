@@ -1,40 +1,42 @@
 <?php
+// ===============================
+// AutoPart - konfiguracja bazy
+// ===============================
 session_start();
 
-$host = "127.0.0.1";
-$user = "root";
-$pass = "";
-$dbname = "autopart";
+$host = 'localhost';
+$dbname = 'autopart';
+$username = 'root';
+$password = ''; // <- ustaw swoje hasło MySQL
 
 try {
-    $db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass);
+    $db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Błąd połączenia z bazą: " . $e->getMessage());
+    die("Błąd połączenia z bazą danych: " . $e->getMessage());
+}
+
+// ==================================
+// Funkcje sesji i bezpieczeństwa
+// ==================================
+function require_login($db) {
+    if (!isset($_SESSION['user_email'])) {
+        header("Location: login.php");
+        exit;
+    }
+    $email = $_SESSION['user_email'];
+    $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$user) {
+        session_destroy();
+        header("Location: login.php");
+        exit;
+    }
+    return $user;
 }
 
 function generateSessionToken() {
     return bin2hex(random_bytes(32));
 }
-
-function require_login(PDO $db) {
-    if (empty($_SESSION['user_email']) || empty($_SESSION['session_token'])) {
-        header("Location: login.html");
-        exit;
-    }
-
-    $email = $_SESSION['user_email'];
-    $token = $_SESSION['session_token'];
-
-    $stmt = $db->prepare("SELECT session_token FROM users WHERE email = ? LIMIT 1");
-    $stmt->execute([$email]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$row || $row['session_token'] === null || !hash_equals($row['session_token'], $token)) {
-        session_unset();
-        session_destroy();
-        header("Location: login.html");
-        exit;
-    }
-    session_regenerate_id(true);
-}
+?>

@@ -1,187 +1,55 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoPart Battery - Rejestracja</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-.phone-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 18px;
-}
-
-.phone-input-wrapper {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.phone-input-wrapper select {
-  appearance: none;
-  border: none;
-  background: transparent;
-  padding: 12px 10px;
-  font-size: 1rem;
-  color: #003b93;
-  width: 100px;
-  cursor: pointer;
-  text-align: center;
-  font-weight: 500;
-}
-
-.phone-input-wrapper input[type="text"] {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 12px 14px;
-  font-size: 1rem;
-  color: #003b93;
-  outline: none;
-}
-
-.phone-input-wrapper select:focus,
-.phone-input-wrapper input:focus {
-  outline: none;
-  background: rgba(255, 255, 255, 1);
-}
-
-@media (max-width: 480px) {
-  .phone-input-wrapper {
-    flex-direction: row;
-  }
-  .phone-input-wrapper select {
-    width: 85px;
-    font-size: 0.95rem;
-  }
-}
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
-    body {
-      background: linear-gradient(180deg, #0046ad 60%, #003b93 100%);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .register-container {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      backdrop-filter: blur(8px);
-      border-radius: 16px;
-      padding: 40px 50px;
-      width: 100%;
-      max-width: 450px;
-      text-align: center;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-      animation: fadeIn 0.8s ease forwards;
-    }
-    .register-container img { height: 60px; margin-bottom: 25px; }
-    .register-container h2 { font-size: 1.8rem; margin-bottom: 20px; }
-    .form-group { text-align: left; margin-bottom: 15px; }
-    .form-group label { display: block; font-size: 0.9rem; margin-bottom: 6px; color: #dfe9ff; }
-    .form-group input {
-      width: 100%; padding: 12px; border: none; border-radius: 8px;
-      background: rgba(255,255,255,0.9); font-size: 1rem; color: #003b93;
-    }
-    .form-group input:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.3); }
-    .register-btn {
-      width: 100%; background: white; color: #0046ad; border: none; border-radius: 8px;
-      padding: 12px; font-size: 1rem; cursor: pointer; transition: 0.3s; margin-top: 10px;
-    }
-    .register-btn:hover { background: #dfe9ff; }
-    .links { margin-top: 20px; font-size: 0.9rem; }
-    .links a { color: #fff; text-decoration: underline; opacity: 0.8; transition: 0.2s; }
-    .links a:hover { opacity: 1; }
-    @keyframes fadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rejestracja - AutoPart</title>
+<link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
-  <div class="register-container">
-    <img src="logo.png" alt="AutoPart Battery Logo">
-    <h2>Utwórz konto</h2>
+<body class="auth-body">
+<div class="auth-container">
+  <h2>Załóż konto</h2>
+  <form action="register.php" method="post" enctype="multipart/form-data">
+    <label>Imię</label>
+    <input type="text" name="first_name" required>
 
-    <form action="register.php" method="POST" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="first_name">Imię</label>
-        <input type="text" id="first_name" name="first_name" required>
-      </div>
+    <label>Nazwisko</label>
+    <input type="text" name="last_name" required>
 
-      <div class="form-group">
-        <label for="last_name">Nazwisko</label>
-        <input type="text" id="last_name" name="last_name" required>
-      </div>
-<div class="form-group phone-group">
-  <label for="phone">Numer telefonu</label>
-  <div class="phone-input-wrapper">
-    <select id="country_code" name="country_code" required>
-      <option value="+48" selected>🇵🇱 +48</option>
-      <option value="+49">🇩🇪 +49</option>
-      <option value="+44">🇬🇧 +44</option>
-      <option value="+420">🇨🇿 +420</option>
-      <option value="+421">🇸🇰 +421</option>
-      <option value="+33">🇫🇷 +33</option>
-      <option value="+39">🇮🇹 +39</option>
-      <option value="+1">🇺🇸 +1</option>
-    </select>
-    <input type="text" id="phone" name="phone" placeholder="123 456 789" required>
-  </div>
-</div>
-      <div class="form-group">
-        <label for="email">Adres email</label>
-        <input type="email" id="email" name="email" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Hasło</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-      <div class="form-group">
-        <label for="confirmPassword">Powtórz hasło</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required>
-      </div>
-      <div class="form-group">
-        <label for="avatar">Awatar (opcjonalnie)</label>
-        <input type="file" id="avatar" name="avatar" accept="image/*">
-      </div>
-      <button type="submit" class="register-btn">Zarejestruj się</button>
-    </form>
-    <div class="links">
-      <p>Masz już konto?</p>
-      <a href="login.html">Zaloguj się</a>
+    <label>Adres e-mail</label>
+    <input type="email" name="email" required>
+
+    <label>Numer telefonu</label>
+    <div class="phone-input-wrapper">
+      <select name="country_code" required>
+        <option value="+48" selected>🇵🇱 +48</option>
+        <option value="+49">🇩🇪 +49</option>
+        <option value="+44">🇬🇧 +44</option>
+        <option value="+420">🇨🇿 +420</option>
+        <option value="+421">🇸🇰 +421</option>
+        <option value="+33">🇫🇷 +33</option>
+        <option value="+39">🇮🇹 +39</option>
+        <option value="+1">🇺🇸 +1</option>
+      </select>
+      <input type="text" id="phone" name="phone" placeholder="123 456 789" maxlength="11" required>
     </div>
-  </div>
-<script>
-const phoneInput = document.getElementById("phone");
 
-phoneInput.addEventListener("input", () => {
-  let digits = phoneInput.value.replace(/\D/g, "");
+    <label>Adres zamieszkania</label>
+    <input type="text" name="address" placeholder="np. ul. Lipowa 10, Kraków" required>
 
-  if (digits.length > 9) digits = digits.slice(0, 9);
+    <label>Hasło</label>
+    <input type="password" name="password" required>
 
-  const parts = [];
-  for (let i = 0; i < digits.length; i += 3) {
-    parts.push(digits.substring(i, i + 3));
-  }
-  phoneInput.value = parts.join(" ");
-});
+    <label>Potwierdź hasło</label>
+    <input type="password" name="confirm" required>
 
-phoneInput.addEventListener("keypress", (e) => {
-  if (!/[0-9]/.test(e.key)) {
-    e.preventDefault();
-  }
-});
+    <label>Avatar (opcjonalnie)</label>
+    <input type="file" name="avatar" accept="image/*">
 
-document.querySelector("form").addEventListener("submit", (e) => {
-  const digits = phoneInput.value.replace(/\D/g, "");
-  if (digits.length !== 9) {
-    e.preventDefault();
-    alert("Numer telefonu musi zawierać dokładnie 9 cyfr!");
-  }
-});
-</script>
+    <button type="submit">Zarejestruj</button>
+    <p>Masz już konto? <a href="login.html">Zaloguj się</a></p>
+  </form>
+</div>
+<script src="assets/script.js"></script>
 </body>
 </html>
