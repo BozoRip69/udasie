@@ -32,6 +32,16 @@ $posts = $db->query("
   ORDER BY p.created_at DESC LIMIT 10
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+// lista baterii użytkowników
+$user_batteries = $db->query("
+  SELECT b.id, b.serial_number, b.conductor_number, b.battery_model, b.installation_date, v.vin, v.brand, v.model, u.first_name, u.last_name 
+  FROM user_batteries ub 
+  JOIN users u ON u.id = ub.user_id
+  JOIN batteries b ON b.id = ub.battery.id
+  JOIN vehicles v ON v.id = ub.vehicle_id
+  ORDER BY b.installation_date DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
 // lista samochodów
 $vehicles = $db->query("
   SELECT v.id, v.brand, v.model, v.vin, v.mileage, v.purchase_date, v.inspection_date, 
@@ -93,6 +103,49 @@ $vehicles = $db->query("
               <form action="admin_action.php" method="post" style="display:inline;">
                 <input type="hidden" name="id" value="<?= $v['id'] ?>">
                 <button name="action" value="delete_vehicle" class="danger btn-small" onclick="return confirm('Usunąć ten pojazd?')">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- =========================== -->
+  <!-- Sekcja AKUMULATORY UŻYTKOWNIKÓW -->
+  <!-- =========================== -->
+  <div class="admin-section">
+    <h2>Akumulatory użytkowników</h2>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Numer seryjny</th>
+          <th>Numer przewodnika</th>
+          <th>Model baterii</th>
+          <th>Data instalacji</th>
+          <th>VIN pojazdu</th>
+          <th>Model i marka pojazdu</th>
+          <th>Imię i nazwisko posiadacza</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($user_batteries as $ub): ?>
+          <tr>
+            <td><?= $ub['id'] ?></td>
+            <td><?= $ub['serial_number'] ?></td>
+            <td><?= $ub['conductor_number'] ?></td>
+            <td><?= htmlspecialchars($v['battery_model']) ?></td>
+            <td><?= htmlspecialchars($v['installation_date'] ?: '-') ?></td>
+            <td><?= htmlspecialchars($v['vin']) ?></td>
+            <td><?= htmlspecialchars($v['brand'].' '.$v['model']) ?></td>
+            <td><?= htmlspecialchars($ub['first_name'].' '.$ub['last_name']) ?></td>
+            <td>
+              <form action="admin_action.php" method="post" style="display:inline;">
+                <input type="hidden" name="id" value="<?= $ub['id'] ?>">
+                <button name="action" value="delete_user_battery" class="danger btn-small" onclick="return confirm('Usunąć tą baterię?')">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </form>
