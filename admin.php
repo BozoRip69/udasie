@@ -14,8 +14,8 @@ include 'includes/header.php';
 // Statystyki
 $stats = [
   'users' => $db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
-  'cars' => $db->query("SELECT COUNT(*) FROM cars")->fetchColumn(),
-  'batteries' => $db->query("SELECT COUNT(*) FROM batteries")->fetchColumn(),
+  'vehicles' => $db->query("SELECT COUNT(*) FROM vehicles")->fetchColumn(),
+  'user_batteries' => $db->query("SELECT COUNT(*) FROM user_batteries")->fetchColumn(),
   'posts' => $db->query("SELECT COUNT(*) FROM posts")->fetchColumn(),
   'comments' => $db->query("SELECT COUNT(*) FROM comments")->fetchColumn(),
   'messages' => $db->query("SELECT COUNT(*) FROM messages")->fetchColumn()
@@ -27,24 +27,85 @@ $users = $db->query("SELECT id, first_name, last_name, email, role, created_at F
 // lista postów
 $posts = $db->query("
   SELECT p.id, p.content, p.created_at, u.first_name, u.last_name 
-  FROM posts p JOIN users u ON u.id = p.user_id
+  FROM posts p 
+  JOIN users u ON u.id = p.user_id
   ORDER BY p.created_at DESC LIMIT 10
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// lista samochodów
+$vehicles = $db->query("
+  SELECT v.id, v.brand, v.model, v.vin, v.mileage, v.purchase_date, v.inspection_date, 
+         u.first_name, u.last_name, u.email
+  FROM vehicles v 
+  JOIN users u ON u.id = v.user_id
+  ORDER BY v.created_at DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <section class="admin-panel">
   <h1>Panel administratora</h1>
-  <p>Zarządzaj użytkownikami, postami i statystykami systemu.</p>
+  <p>Zarządzaj użytkownikami, samochodami i postami.</p>
 
   <div class="admin-stats">
     <div class="stat-card"><i class="fa-solid fa-users"></i><strong><?= $stats['users'] ?></strong><span>Użytkownicy</span></div>
-    <div class="stat-card"><i class="fa-solid fa-car"></i><strong><?= $stats['cars'] ?></strong><span>Samochody</span></div>
-    <div class="stat-card"><i class="fa-solid fa-battery-half"></i><strong><?= $stats['batteries'] ?></strong><span>Akumulatory</span></div>
+    <div class="stat-card"><i class="fa-solid fa-car"></i><strong><?= $stats['vehicles'] ?></strong><span>Samochody</span></div>
+    <div class="stat-card"><i class="fa-solid fa-battery-half"></i><strong><?= $stats['user_batteries'] ?></strong><span>Akumulatory</span></div>
     <div class="stat-card"><i class="fa-solid fa-newspaper"></i><strong><?= $stats['posts'] ?></strong><span>Posty</span></div>
     <div class="stat-card"><i class="fa-solid fa-comment"></i><strong><?= $stats['comments'] ?></strong><span>Komentarze</span></div>
     <div class="stat-card"><i class="fa-solid fa-envelope"></i><strong><?= $stats['messages'] ?></strong><span>Wiadomości</span></div>
   </div>
 
+  <!-- =========================== -->
+  <!-- Sekcja SAMOCHODY UŻYTKOWNIKÓW -->
+  <!-- =========================== -->
+  <div class="admin-section">
+    <h2>Samochody użytkowników</h2>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Użytkownik</th>
+          <th>Marka i model</th>
+          <th>VIN</th>
+          <th>Przebieg</th>
+          <th>Zakup</th>
+          <th>Przegląd</th>
+          <th>Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($vehicles as $v): ?>
+          <tr>
+            <td><?= $v['id'] ?></td>
+            <td><?= htmlspecialchars($v['first_name'].' '.$v['last_name']) ?><br><small><?= htmlspecialchars($v['email']) ?></small></td>
+            <td><?= htmlspecialchars($v['brand'].' '.$v['model']) ?></td>
+            <td><?= htmlspecialchars($v['vin']) ?></td>
+            <td><?= number_format((int)$v['mileage'], 0, ',', ' ') ?> km</td>
+            <td><?= htmlspecialchars($v['purchase_date'] ?: '-') ?></td>
+            <td><?= htmlspecialchars($v['inspection_date'] ?: '-') ?></td>
+            <td>
+              <form action="admin_action.php" method="post" style="display:inline;">
+                <input type="hidden" name="vehicle_id" value="<?= $v['id'] ?>">
+                <button name="action" value="force_update_mileage" class="btn-small btn-warning" title="Wymuś aktualizację przebiegu">
+                  <i class="fa-solid fa-gauge-high"></i> Wymuś
+                </button>
+              </form>
+              <form action="admin_action.php" method="post" style="display:inline;">
+                <input type="hidden" name="id" value="<?= $v['id'] ?>">
+                <button name="action" value="delete_vehicle" class="danger btn-small" onclick="return confirm('Usunąć ten pojazd?')">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- =========================== -->
+  <!-- Sekcja UŻYTKOWNICY -->
+  <!-- =========================== -->
   <div class="admin-section">
     <h2>Użytkownicy</h2>
     <table class="admin-table">
@@ -84,6 +145,9 @@ $posts = $db->query("
     </table>
   </div>
 
+  <!-- =========================== -->
+  <!-- Sekcja POSTY -->
+  <!-- =========================== -->
   <div class="admin-section">
     <h2>Ostatnie posty</h2>
     <table class="admin-table">
@@ -117,5 +181,4 @@ $posts = $db->query("
     </table>
   </div>
 </section>
-
 <?php include 'includes/footer.php'; ?>

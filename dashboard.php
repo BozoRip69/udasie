@@ -18,7 +18,7 @@ include 'includes/header.php';
       <i class="fa-solid fa-battery-half"></i>
       <h2>Akumulatory</h2>
       <p>Przeglądaj i aktualizuj</p>
-      <a href="batteries.php" class="btn-small">Przejdź</a>
+      <a href="my_batteries.php" class="btn-small">Przejdź</a>
     </div>
     <div class="card">
       <i class="fa-solid fa-newspaper"></i>

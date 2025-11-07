@@ -17,6 +17,15 @@ if ($action === 'delete_user') {
 } elseif ($action === 'delete_post') {
   $stmt = $db->prepare("DELETE FROM posts WHERE id = ?");
   $stmt->execute([$id]);
+} elseif ($action === 'force_update_mileage') {
+  $vehicle_id = (int)$_POST['vehicle_id'];
+
+  // 🔹 Ustaw flagę needs_update w tabeli vehicles
+  $stmt = $db->prepare("UPDATE vehicles SET needs_update = 1 WHERE id = ?");
+  $stmt->execute([$vehicle_id]);
+
+  header("Location: admin.php?mileage_forced=1");
+  exit;
 }
 
 header("Location: admin.php");
