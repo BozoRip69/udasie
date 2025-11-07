@@ -17,6 +17,9 @@ if ($action === 'delete_user') {
 } elseif ($action === 'delete_post') {
   $stmt = $db->prepare("DELETE FROM posts WHERE id = ?");
   $stmt->execute([$id]);
+} elseif ($action === 'delete_user_battery') {
+  $stmt = $db->prepare("DELETE FROM user_batteries WHERE id = ?");
+  $stmt->execute([$id]);
 } elseif ($action === 'force_update_mileage') {
   $vehicle_id = (int)$_POST['vehicle_id'];
 

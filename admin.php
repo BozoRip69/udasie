@@ -129,6 +129,7 @@ $vehicles = $db->query("
           <th>VIN pojazdu</th>
           <th>Model i marka pojazdu</th>
           <th>Imię i nazwisko posiadacza</th>
+          <th>Akcje</th>
         </tr>
       </thead>
       <tbody>
@@ -137,10 +138,10 @@ $vehicles = $db->query("
             <td><?= $ub['id'] ?></td>
             <td><?= $ub['serial_number'] ?></td>
             <td><?= $ub['conductor_number'] ?></td>
-            <td><?= htmlspecialchars($v['battery_model']) ?></td>
-            <td><?= htmlspecialchars($v['installation_date'] ?: '-') ?></td>
-            <td><?= htmlspecialchars($v['vin']) ?></td>
-            <td><?= htmlspecialchars($v['brand'].' '.$v['model']) ?></td>
+            <td><?= htmlspecialchars($ub['battery_model']) ?></td>
+            <td><?= htmlspecialchars($ub['installation_date'] ?: '-') ?></td>
+            <td><?= htmlspecialchars($ub['vin']) ?></td>
+            <td><?= htmlspecialchars($ub['brand'].' '.$ub['model']) ?></td>
             <td><?= htmlspecialchars($ub['first_name'].' '.$ub['last_name']) ?></td>
             <td>
               <form action="admin_action.php" method="post" style="display:inline;">
