@@ -37,7 +37,7 @@ $user_batteries = $db->query("
   SELECT b.id, b.serial_number, b.conductor_number, b.battery_model, b.installation_date, v.vin, v.brand, v.model, u.first_name, u.last_name 
   FROM user_batteries ub 
   JOIN users u ON u.id = ub.user_id
-  JOIN batteries b ON b.id = ub.battery.id
+  JOIN batteries b ON b.id = ub.battery_id
   JOIN vehicles v ON v.id = ub.vehicle_id
   ORDER BY b.installation_date DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
