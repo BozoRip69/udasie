@@ -21,8 +21,14 @@ $stats = [
   'messages' => $db->query("SELECT COUNT(*) FROM messages")->fetchColumn()
 ];
 
+// licznik otwartych zgłoszeń supportu
+$supportCount = $db->query("SELECT COUNT(*) FROM support_tickets WHERE status = 'open'")->fetchColumn();
+
 // lista użytkowników
-$users = $db->query("SELECT id, first_name, last_name, email, role, created_at FROM users ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
+$users = $db->query("
+  SELECT id, first_name, last_name, email, role, created_at 
+  FROM users ORDER BY created_at DESC
+")->fetchAll(PDO::FETCH_ASSOC);
 
 // lista postów
 $posts = $db->query("
@@ -34,7 +40,8 @@ $posts = $db->query("
 
 // lista baterii użytkowników
 $user_batteries = $db->query("
-  SELECT b.id, b.serial_number, b.conductor_number, b.battery_model, b.installation_date, v.vin, v.brand, v.model, u.first_name, u.last_name 
+  SELECT ub.id, b.serial_number, b.conductor_number, b.battery_model, b.installation_date, 
+         v.vin, v.brand, v.model, u.first_name, u.last_name 
   FROM user_batteries ub 
   JOIN users u ON u.id = ub.user_id
   JOIN batteries b ON b.id = ub.battery_id
@@ -54,7 +61,17 @@ $vehicles = $db->query("
 
 <section class="admin-panel">
   <h1>Panel administratora</h1>
-  <p>Zarządzaj użytkownikami, samochodami i postami.</p>
+  <p>Zarządzaj użytkownikami, samochodami, akumulatorami i postami.</p>
+
+  <!-- 🔹 LINK DO PANELU WSPARCIA -->
+  <div class="admin-links">
+    <a href="support_admin.php" class="btn-support">
+      <i class="fa-solid fa-headset"></i> Centrum wsparcia 
+      <?php if ($supportCount > 0): ?>
+        <span class="badge"><?= $supportCount ?></span>
+      <?php endif; ?>
+    </a>
+  </div>
 
   <div class="admin-stats">
     <div class="stat-card"><i class="fa-solid fa-users"></i><strong><?= $stats['users'] ?></strong><span>Użytkownicy</span></div>
@@ -114,7 +131,7 @@ $vehicles = $db->query("
   </div>
 
   <!-- =========================== -->
-  <!-- Sekcja AKUMULATORY UŻYTKOWNIKÓW -->
+  <!-- Sekcja AKUMULATORY -->
   <!-- =========================== -->
   <div class="admin-section">
     <h2>Akumulatory użytkowników</h2>
@@ -124,11 +141,11 @@ $vehicles = $db->query("
           <th>ID</th>
           <th>Numer seryjny</th>
           <th>Numer przewodnika</th>
-          <th>Model baterii</th>
+          <th>Model</th>
           <th>Data instalacji</th>
           <th>VIN pojazdu</th>
-          <th>Model i marka pojazdu</th>
-          <th>Imię i nazwisko posiadacza</th>
+          <th>Pojazd</th>
+          <th>Właściciel</th>
           <th>Akcje</th>
         </tr>
       </thead>
@@ -136,8 +153,8 @@ $vehicles = $db->query("
         <?php foreach ($user_batteries as $ub): ?>
           <tr>
             <td><?= $ub['id'] ?></td>
-            <td><?= $ub['serial_number'] ?></td>
-            <td><?= $ub['conductor_number'] ?></td>
+            <td><?= htmlspecialchars($ub['serial_number']) ?></td>
+            <td><?= htmlspecialchars($ub['conductor_number']) ?></td>
             <td><?= htmlspecialchars($ub['battery_model']) ?></td>
             <td><?= htmlspecialchars($ub['installation_date'] ?: '-') ?></td>
             <td><?= htmlspecialchars($ub['vin']) ?></td>
@@ -146,7 +163,7 @@ $vehicles = $db->query("
             <td>
               <form action="admin_action.php" method="post" style="display:inline;">
                 <input type="hidden" name="id" value="<?= $ub['id'] ?>">
-                <button name="action" value="delete_user_battery" class="danger btn-small" onclick="return confirm('Usunąć tą baterię?')">
+                <button name="action" value="delete_user_battery" class="danger btn-small" onclick="return confirm('Usunąć tę baterię?')">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </form>
@@ -179,7 +196,7 @@ $vehicles = $db->query("
             <td><?= $u['id'] ?></td>
             <td><?= htmlspecialchars($u['first_name'].' '.$u['last_name']) ?></td>
             <td><?= htmlspecialchars($u['email']) ?></td>
-            <td><?= $u['role'] ?></td>
+            <td><?= htmlspecialchars($u['role']) ?></td>
             <td><?= date('d.m.Y H:i', strtotime($u['created_at'])) ?></td>
             <td>
               <?php if ($u['id'] !== $user['id']): ?>
@@ -235,4 +252,44 @@ $vehicles = $db->query("
     </table>
   </div>
 </section>
+
+<style>
+.admin-links {
+  margin: 20px 0;
+  text-align: center;
+}
+.btn-support {
+  background: #007bff;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.btn-support:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+.badge {
+  background: #dc3545;
+  color: white;
+  font-size: 0.8rem;
+  border-radius: 50%;
+  padding: 2px 7px;
+  margin-left: 4px;
+}
+body.dark .btn-support {
+  background: #2563eb;
+  color: #e5e7eb;
+}
+body.dark .btn-support:hover {
+  background: #1e40af;
+}
+</style>
+
 <?php include 'includes/footer.php'; ?>
