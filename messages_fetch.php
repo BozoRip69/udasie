@@ -1,13 +1,22 @@
 <?php
 require 'config.php';
-require_login($db);
 $user = require_login($db);
-$other = (int)($_GET['user_id'] ?? 0);
+
+$chat_id = isset($_GET['user']) ? (int)$_GET['user'] : 0;
+if (!$chat_id) {
+    echo json_encode([]);
+    exit;
+}
 
 $stmt = $db->prepare("
-  SELECT * FROM messages 
-  WHERE (sender_id=? AND receiver_id=?) OR (sender_id=? AND receiver_id=?) 
-  ORDER BY created_at ASC
+    SELECT * FROM messages
+    WHERE (sender_id = ? AND receiver_id = ?)
+       OR (sender_id = ? AND receiver_id = ?)
+    ORDER BY created_at ASC
 ");
-$stmt->execute([$user['id'], $other, $other, $user['id']]);
-echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+$stmt->execute([$user['id'], $chat_id, $chat_id, $user['id']]);
+$messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+header('Content-Type: application/json');
+echo json_encode($messages);
+?>

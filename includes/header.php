@@ -66,29 +66,63 @@ $unread_msgs = (int)$stmt->fetchColumn();
 <main>
 
 <script>
-// 🔄 Automatyczne odświeżanie licznika wiadomości w headerze
-setInterval(() => {
+// 🔔 Live sprawdzanie wiadomości + dźwięk powiadomienia (z pamięcią)
+const audioPing = new Audio('assets/sounds/ping.mp3');
+
+// Pobierz poprzednią wartość z localStorage
+let lastTotal = parseInt(localStorage.getItem('lastUnreadTotal') || '0');
+
+function updateMessageCounter() {
   fetch('check_messages.php')
     .then(r => r.json())
     .then(data => {
-      // zsumuj wszystkie nieprzeczytane wiadomości
       let total = 0;
+
       if (Array.isArray(data)) {
-        data.forEach(item => total += item.unread_count);
-      } else if (typeof data.total !== 'undefined') {
+        data.forEach(item => total += item.unread_count || 0);
+      } else if (data.total !== undefined) {
         total = data.total;
       }
 
       const badge = document.getElementById('msg-counter');
-      if (!badge) return;
 
       if (total > 0) {
-        badge.textContent = total;
-        badge.style.display = 'inline-block';
-      } else {
+        if (badge) {
+          badge.textContent = total;
+          badge.style.display = 'inline-block';
+        } else {
+          const newBadge = document.createElement('span');
+          newBadge.id = 'msg-counter';
+          newBadge.className = 'msg-badge';
+          newBadge.textContent = total;
+          document.querySelector('.nav-msg').appendChild(newBadge);
+        }
+      } else if (badge) {
         badge.style.display = 'none';
       }
+
+      // 🔊 Odtwórz ping tylko, gdy faktycznie przybyła nowa wiadomość
+      if (total > lastTotal) {
+        try {
+          audioPing.currentTime = 0;
+          audioPing.play().catch(() => {});
+        } catch (e) {
+          console.warn('Nie udało się odtworzyć dźwięku:', e);
+        }
+      }
+
+      // Zapisz nową wartość w localStorage
+      localStorage.setItem('lastUnreadTotal', total);
+
+      // Zaktualizuj zmienną w pamięci
+      lastTotal = total;
     })
-    .catch(err => console.error('Błąd aktualizacji licznika wiadomości:', err));
-}, 3000); // odświeżaj co 3 sekundy
+    .catch(err => console.error('Błąd aktualizacji wiadomości:', err));
+}
+
+// 🔁 sprawdzaj co 3 sekundy
+setInterval(updateMessageCounter, 3000);
+updateMessageCounter();
 </script>
+
+

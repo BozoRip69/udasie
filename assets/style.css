@@ -1043,3 +1043,248 @@ body.dark .nav-badge {
   border-radius: 10px;
   margin-left: 6px;
 }
+
+/* ✨ Animacja pojawiania się nowych wiadomości */
+.msg {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.msg.fade-in {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: msgAppear 0.4s ease forwards;
+}
+
+@keyframes msgAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🖼️ Styl zdjęć w czacie */
+.msg-image {
+  margin-top: 6px;
+}
+
+.msg-image img {
+  max-width: 220px;
+  max-height: 220px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.msg-image img:hover {
+  transform: scale(1.03);
+}
+
+/* ✨ Animacja pojawiania się wiadomości */
+.msg.fade-in {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: msgAppear 0.4s ease forwards;
+}
+
+@keyframes msgAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 📎 Ikonka do wybierania zdjęcia */
+.file-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: 18px;
+  margin: 0 6px;
+  cursor: pointer;
+}
+
+.file-btn:hover {
+  color: #fff;
+}
+
+/* 🖼️ LIGHTBOX */
+#lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#lightbox.active {
+  display: flex;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+#lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  transform: scale(0.95);
+  opacity: 0;
+  animation: zoomIn 0.3s ease forwards;
+}
+
+#lightbox-close {
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  color: #fff;
+  font-size: 36px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  z-index: 10000;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+#lightbox-close:hover {
+  transform: scale(1.2);
+  color: #ff5555;
+}
+
+/* ✨ Animacje */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+/* ========================================== */
+/*           FORMULARZ EDYCJI POJAZDU         */
+/* ========================================== */
+
+.edit-vehicle {
+  max-width: 700px;
+  margin: 40px auto;
+}
+
+.edit-vehicle h1 {
+  text-align: center;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+body.dark .edit-vehicle h1 {
+  color: var(--accent);
+}
+
+.edit-form {
+  background: var(--card-light);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+body.dark .edit-form {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+}
+
+.edit-form label {
+  font-weight: 600;
+  display: block;
+  margin-top: 12px;
+  color: var(--primary);
+}
+body.dark .edit-form label {
+  color: var(--accent);
+}
+
+.edit-form input[type="text"],
+.edit-form input[type="number"],
+.edit-form input[type="date"],
+.edit-form input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  margin-top: 4px;
+  background: var(--card-light);
+  color: var(--text-light);
+}
+body.dark .edit-form input {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+
+.image-preview {
+  text-align: center;
+  margin-bottom: 15px;
+}
+.image-preview img {
+  max-width: 220px;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Przyciski akcji */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-save {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+.btn-save:hover {
+  background: var(--primary-dark);
+}
+.btn-cancel {
+  text-decoration: none;
+  color: var(--text-light);
+  border: 1px solid var(--border-light);
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.btn-cancel:hover {
+  background: rgba(0,0,0,0.05);
+}
+body.dark .btn-cancel {
+  color: var(--text-dark);
+  border-color: var(--border-dark);
+}
+body.dark .btn-cancel:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+
+

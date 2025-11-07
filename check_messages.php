@@ -9,7 +9,15 @@ $stmt = $db->prepare("
   GROUP BY sender_id
 ");
 $stmt->execute([$user['id']]);
-$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// policz sumę nieprzeczytanych
+$total = 0;
+foreach ($rows as $r) $total += $r['unread_count'];
 
 header('Content-Type: application/json');
-echo json_encode($result);
+echo json_encode([
+  'total' => $total,
+  'by_user' => $rows
+]);
+?>

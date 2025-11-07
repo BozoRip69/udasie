@@ -27,20 +27,6 @@ if ($chat_id) {
     $db->prepare("UPDATE messages SET is_read = 1 WHERE sender_id = ? AND receiver_id = ?")
        ->execute([$chat_id, $user['id']]);
 }
-
-// 🟢 Wysyłanie wiadomości
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $chat_id) {
-    $content = trim($_POST['message']);
-    if ($content !== '') {
-        $stmt = $db->prepare("
-            INSERT INTO messages (sender_id, receiver_id, content, created_at, is_read)
-            VALUES (?, ?, ?, NOW(), 0)
-        ");
-        $stmt->execute([$user['id'], $chat_id, $content]);
-    }
-    header("Location: messages.php?user=$chat_id");
-    exit;
-}
 ?>
 
 <main class="messages-wrapper">
@@ -65,74 +51,138 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['message']) && $chat_i
           <h3><?= htmlspecialchars($chat_user['first_name'].' '.$chat_user['last_name']) ?></h3>
         </div>
 
-        <div class="chat-messages" id="chat-box">
-          <?php
-          $stmt = $db->prepare("
-            SELECT * FROM messages 
-            WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
-            ORDER BY created_at ASC
-          ");
-          $stmt->execute([$user['id'], $chat_id, $chat_id, $user['id']]);
-          $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-          ?>
+        <div class="chat-messages" id="chat-box"></div>
 
-          <?php foreach ($messages as $msg): ?>
-            <div class="msg <?= $msg['sender_id'] == $user['id'] ? 'sent' : 'recv' ?>">
-              <div class="msg-content"><?= nl2br(htmlspecialchars($msg['content'])) ?></div>
-              <small class="msg-time"><?= date('d.m.Y H:i', strtotime($msg['created_at'])) ?></small>
-            </div>
-          <?php endforeach; ?>
-        </div>
-
-        <form method="post" class="send-form">
-          <input type="text" name="message" placeholder="Napisz wiadomość..." required autocomplete="off">
+        <!-- 📎 Formularz z polem do zdjęć -->
+        <form id="sendForm" class="send-form" enctype="multipart/form-data">
+          <input type="text" name="message" placeholder="Napisz wiadomość..." autocomplete="off">
+          <label class="file-btn">
+            <i class="fa-solid fa-image"></i>
+            <input type="file" name="image" accept="image/*" style="display:none;">
+          </label>
           <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
 
         <script>
-          // automatyczne przewinięcie do dołu
-          const chatBox = document.getElementById('chat-box');
-          if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        const chatBox = document.getElementById('chat-box');
+        const chatUser = <?= json_encode($chat_id) ?>;
+        let lastMessageCount = 0;
 
-          // 🔵 po wejściu do konwersacji — zaktualizuj licznik wiadomości
-          <?php if ($chat_id): ?>
-          fetch('update_unread.php')
+        // 🔄 Pobieranie wiadomości AJAX-em
+        function refreshMessages() {
+          if (!chatUser) return;
+
+          fetch('messages_fetch.php?user=' + chatUser)
             .then(r => r.json())
-            .then(data => {
-              const badge = document.getElementById('msg-counter');
-              if (!badge) return;
-              if (data.total > 0) {
-                badge.textContent = data.total;
-              } else {
-                badge.style.display = 'none';
+            .then(messages => {
+              if (!messages.length) {
+                chatBox.innerHTML = '<p class="empty-chat">Brak wiadomości.</p>';
+                return;
               }
+
+              // 🧠 jeśli liczba wiadomości się nie zmieniła — nie rób nic
+              if (messages.length === lastMessageCount) return;
+
+              // 🔁 renderuj tylko nowe wiadomości
+              const newMessages = messages.slice(lastMessageCount);
+              lastMessageCount = messages.length;
+
+              // jeśli czat pusty — załaduj wszystko
+              if (chatBox.children.length === 0) {
+                messages.forEach(msg => addMessage(msg, false));
+              } else {
+                newMessages.forEach(msg => addMessage(msg, true));
+              }
+
+              chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
             })
-            .catch(e => console.error('Błąd aktualizacji licznika:', e));
-          <?php endif; ?>
+            .catch(err => console.error('Błąd pobierania wiadomości:', err));
+        }
+
+        // 🧩 Tworzenie wiadomości z animacją
+        function addMessage(msg, animate = true) {
+          const div = document.createElement('div');
+          div.classList.add('msg');
+          div.classList.add(msg.sender_id == <?= $user['id'] ?> ? 'sent' : 'recv');
+
+          // treść wiadomości
+          let html = '';
+          if (msg.content) {
+            html += `<div class="msg-content">${msg.content.replace(/\n/g, '<br>')}</div>`;
+          }
+if (msg.image_path) {
+  html += `
+    <div class="msg-image">
+      <img src="${msg.image_path}" alt="Wysłane zdjęcie" data-full="${msg.image_path}">
+    </div>`;
+}
+
+          html += `<small class="msg-time">${new Date(msg.created_at).toLocaleString('pl-PL')}</small>`;
+          div.innerHTML = html;
+
+          // ✨ efekt animacji
+          if (animate) {
+            div.classList.add('fade-in');
+            setTimeout(() => div.classList.remove('fade-in'), 600);
+          }
+
+          chatBox.appendChild(div);
+        }
+
+        // 🔁 Odświeżanie czatu co 2 sekundy
+        setInterval(refreshMessages, 2000);
+        refreshMessages();
+
+        // ✉️ Wysyłanie wiadomości AJAX-em (tekst + zdjęcie)
+        const form = document.getElementById('sendForm');
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const formData = new FormData(form);
+          formData.append('receiver_id', chatUser);
+
+          fetch('messages_send.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(r => r.text())
+          .then(() => {
+            form.reset();
+            refreshMessages(); // odśwież natychmiast
+          })
+          .catch(err => console.error('Błąd wysyłania wiadomości:', err));
+        });
         </script>
         <script>
-// 🔄 Automatyczna aktualizacja liczników rozmów co 3 sekundy
-setInterval(() => {
-  fetch('check_messages.php')
-    .then(r => r.json())
-    .then(data => {
-      // Zeruj wszystkie liczniki
-      document.querySelectorAll('.unread-badge').forEach(b => b.remove());
+// 🖼️ Lightbox – kliknięcie w miniaturkę zdjęcia w czacie
+document.addEventListener('click', function(e) {
+  if (e.target.matches('.msg-image img')) {
+    const src = e.target.getAttribute('src');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox.querySelector('img');
+    lightboxImg.src = src;
+    lightbox.classList.add('active');
+  }
+});
 
-      // Dodaj badge tam, gdzie są nowe wiadomości
-      data.forEach(item => {
-        const contact = document.querySelector(`.contact[href="messages.php?user=${item.user_id}"]`);
-        if (contact && item.unread_count > 0) {
-          const badge = document.createElement('span');
-          badge.className = 'unread-badge';
-          badge.textContent = item.unread_count;
-          contact.appendChild(badge);
-        }
-      });
-    })
-    .catch(err => console.error('Błąd aktualizacji rozmów:', err));
-}, 3000); // co 3 sekundy
+// ❌ Zamknięcie lightboxa kliknięciem lub klawiszem ESC
+document.getElementById('lightbox-close').addEventListener('click', () => {
+  document.getElementById('lightbox').classList.remove('active');
+});
+
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+});
 </script>
+
+        
 
       <?php else: ?>
         <div class="chat-empty">
@@ -141,7 +191,48 @@ setInterval(() => {
       <?php endif; ?>
     </div>
   </div>
-</main>
+  <!-- 🖼️ Lightbox do powiększania zdjęć -->
+<!-- 🖼️ Lightbox -->
+<div id="lightbox">
+  <span id="lightbox-close">&times;</span>
+  <img src="" alt="Podgląd zdjęcia">
+</div>
 
+<script>
+// 🖼️ Obsługa lightboxa
+document.addEventListener('click', function(e) {
+  const img = e.target.closest('.msg-image img');
+  if (!img) return;
+
+  e.preventDefault();
+  const src = img.dataset.full;
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = lightbox.querySelector('img');
+  lightboxImg.src = src;
+  lightbox.classList.add('active');
+});
+
+// Zamknięcie przyciskiem X
+document.getElementById('lightbox-close').addEventListener('click', () => {
+  document.getElementById('lightbox').classList.remove('active');
+});
+
+// Zamknięcie kliknięciem w tło
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') {
+    e.currentTarget.classList.remove('active');
+  }
+});
+
+// Zamknięcie klawiszem ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+});
+</script>
+
+
+</main>
 
 <?php include 'includes/footer.php'; ?>
