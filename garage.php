@@ -4,18 +4,15 @@ $user = require_login($db);
 $pageTitle = "Twój garaż";
 include 'includes/header.php';
 
-// Pobierz pojazdy użytkownika z tabeli vehicles
 $stmt = $db->prepare("SELECT * FROM vehicles WHERE user_id = ? ORDER BY created_at DESC");
 $stmt->execute([$user['id']]);
 $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Oblicz łączny przebieg
 $totalMileage = 0;
 foreach ($vehicles as $v) {
     $totalMileage += (int)($v['mileage'] ?? 0);
 }
 
-// Do komunikatów (opcjonalne)
 $notice = '';
 if (isset($_GET['updated'])) $notice = '✅ Dane pojazdu zostały zaktualizowane.';
 if (isset($_GET['deleted'])) $notice = '✅ Pojazd został usunięty.';
@@ -90,10 +87,6 @@ if (isset($_GET['added'])) $notice = '✅ Pojazd został dodany.';
 </section>
 
 <style>
-/* =============================== */
-/*      GARAŻ – KARTY POJAZDÓW     */
-/* =============================== */
-
 .garage {
   max-width: 1100px;
   margin: 40px auto;
@@ -101,13 +94,13 @@ if (isset($_GET['added'])) $notice = '✅ Pojazd został dodany.';
   font-family: 'Inter', sans-serif;
 }
 
-/* Nagłówek sekcji */
 .garage-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
+
 .garage-header h1 {
   font-size: 1.9rem;
   font-weight: 700;
@@ -116,11 +109,11 @@ if (isset($_GET['added'])) $notice = '✅ Pojazd został dodany.';
   align-items: center;
   gap: 10px;
 }
+
 body.dark .garage-header h1 {
   color: #60a5fa;
 }
 
-/* Przycisk dodawania */
 .garage-actions .btn-vin {
   background: var(--accent, #007bff);
   color: #fff;
@@ -131,12 +124,12 @@ body.dark .garage-header h1 {
   box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
   transition: 0.2s;
 }
+
 .garage-actions .btn-vin:hover {
   background: var(--primary, #0056b3);
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
 }
 
-/* Powiadomienia */
 .notice {
   background: #e9f7ef;
   border: 1px solid #c7eed2;
@@ -145,38 +138,39 @@ body.dark .garage-header h1 {
   border-radius: 8px;
   margin-bottom: 12px;
 }
+
 body.dark .notice {
   background: rgba(46, 204, 113, 0.1);
   border-color: #16a34a;
   color: #4ade80;
 }
 
-/* Suma przebiegu */
 .garage-summary {
   margin-bottom: 20px;
   text-align: center;
   color: var(--primary-dark, #073b66);
   font-size: 1.05rem;
 }
+
 .garage-summary .highlight {
   color: #28a745;
   font-weight: bold;
 }
+
 body.dark .garage-summary {
   color: #e5e7eb;
 }
+
 body.dark .garage-summary .highlight {
   color: #4ade80;
 }
 
-/* Lista kart */
 .garage-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 20px;
 }
 
-/* Karta pojazdu */
 .car-card {
   background: #ffffff;
   border-radius: 12px;
@@ -188,31 +182,33 @@ body.dark .garage-summary .highlight {
   border: 1px solid #f1f5f9;
   transition: all 0.25s ease;
 }
+
 .car-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 123, 255, 0.15);
 }
 
-/* Tryb ciemny karty */
 body.dark .car-card {
   background: #161b22;
   border-color: #2c2f33;
   box-shadow: none;
 }
+
 body.dark .car-card:hover {
   box-shadow: 0 0 12px rgba(0, 120, 255, 0.25);
 }
 
-/* Sekcja zdjęcia i metadanych */
 .car-top {
   display: flex;
   gap: 16px;
   align-items: flex-start;
 }
+
 .car-thumb-wrap {
   width: 140px;
   flex: 0 0 140px;
 }
+
 .car-thumb {
   width: 140px;
   height: 140px;
@@ -222,41 +218,46 @@ body.dark .car-card:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .car-thumb:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
 }
+
 body.dark .car-thumb {
   border-color: #2c2f33;
   box-shadow: 0 4px 10px rgba(255,255,255,0.05);
 }
 
-/* Dane meta */
 .car-meta h3 {
   margin: 0 0 6px 0;
   font-size: 1.15rem;
   color: var(--primary, #0046ad);
 }
+
 .car-meta p {
   margin: 0;
   color: #555;
   font-size: 0.95rem;
 }
+
 body.dark .car-meta h3 {
   color: #3b82f6;
 }
+
 body.dark .car-meta p {
   color: #e5e7eb;
 }
 
-/* Sekcja danych technicznych */
 .car-body {
   border-top: 1px solid #f1f5f9;
   padding-top: 12px;
 }
+
 body.dark .car-body {
   border-color: #2c2f33;
 }
+
 .car-info {
   list-style: none;
   padding: 0;
@@ -267,24 +268,27 @@ body.dark .car-body {
   font-size: 0.95rem;
   color: #444;
 }
+
 .car-info li {
   padding-bottom: 6px;
   border-bottom: 1px solid #fafafa;
 }
+
 body.dark .car-info {
   color: #e5e7eb;
 }
+
 body.dark .car-info li {
   border-color: rgba(255,255,255,0.08);
 }
 
-/* Przyciski */
 .car-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
   margin-top: 8px;
 }
+
 .btn-edit {
   background: #ffc107;
   color: #000;
@@ -298,13 +302,16 @@ body.dark .car-info li {
   font-weight: 600;
   transition: 0.2s;
 }
+
 .btn-edit:hover {
   background: #e0a800;
 }
+
 body.dark .btn-edit {
   background: #facc15;
   color: #111;
 }
+
 body.dark .btn-edit:hover {
   background: #eab308;
 }
@@ -319,14 +326,49 @@ body.dark .btn-edit:hover {
   font-weight: 600;
   transition: 0.2s;
 }
+
 .danger:hover {
   background: #b52d29;
 }
+
 body.dark .danger {
   background: #ef4444;
 }
+
 body.dark .danger:hover {
   background: #dc2626;
+}
+
+body.dark canvas,
+body.dark .chart-container,
+body.dark .apexcharts-canvas,
+body.dark .apexcharts-text,
+body.dark .apexcharts-title-text,
+body.dark .apexcharts-xaxis-texts-g text,
+body.dark .apexcharts-yaxis-texts-g text {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+body.dark .apexcharts-gridline,
+body.dark .apexcharts-xaxis line,
+body.dark .apexcharts-yaxis line {
+  stroke: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark .apexcharts-tooltip,
+body.dark .apexcharts-legend-text {
+  color: #ffffff !important;
+  background-color: #1e1e1e !important;
+}
+
+body.dark .apexcharts-legend-marker {
+  border-color: #ffffff !important;
+}
+
+body.dark .chartjs-render-monitor {
+  filter: brightness(1.5);
 }
 </style>
 
