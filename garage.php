@@ -338,38 +338,6 @@ body.dark .danger {
 body.dark .danger:hover {
   background: #dc2626;
 }
-
-body.dark canvas,
-body.dark .chart-container,
-body.dark .apexcharts-canvas,
-body.dark .apexcharts-text,
-body.dark .apexcharts-title-text,
-body.dark .apexcharts-xaxis-texts-g text,
-body.dark .apexcharts-yaxis-texts-g text {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-body.dark .apexcharts-gridline,
-body.dark .apexcharts-xaxis line,
-body.dark .apexcharts-yaxis line {
-  stroke: rgba(255, 255, 255, 0.2) !important;
-}
-
-body.dark .apexcharts-tooltip,
-body.dark .apexcharts-legend-text {
-  color: #ffffff !important;
-  background-color: #1e1e1e !important;
-}
-
-body.dark .apexcharts-legend-marker {
-  border-color: #ffffff !important;
-}
-
-body.dark .chartjs-render-monitor {
-  filter: brightness(1.5);
-}
 </style>
 
 
