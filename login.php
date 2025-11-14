@@ -21,6 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         $error = "Wypełnij wszystkie pola.";
     }
+
+    if ($user['verified'] == 0) {
+      die("Musisz potwierdzić email zanim się zalogujesz.");
+    }
+
 }
 
 ?>
