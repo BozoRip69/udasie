@@ -1,103 +1,135 @@
 <?php
-require 'config.php';
-$user = require_login($db);
-$pageTitle = "Edytuj akumulator";
-include 'includes/header.php';
+require_once "config.php";
 
-if (empty($_GET['id'])) {
-  header("Location: my_batteries.php");
-  exit;
+$user = require_login($db);
+$user_id = $user["id"];
+
+if (!isset($_GET["id"])) {
+    die("Brak ID akumulatora!");
 }
 
-$id = (int) $_GET['id'];
+$id = intval($_GET["id"]);
 
-// Pobierz dane akumulatora użytkownika
+/**************************************
+ * Pobranie danych rekordu
+ **************************************/
 $stmt = $db->prepare("
-  SELECT ub.*, b.battery_model, b.serial_number, v.brand AS vehicle_brand, v.model AS vehicle_model
-  FROM user_batteries ub
-  JOIN batteries b ON ub.battery_id = b.id
-  LEFT JOIN vehicles v ON ub.vehicle_id = v.id
-  WHERE ub.id = ? AND ub.user_id = ?
+    SELECT ub.*, a.producent, a.numer_katalogowy, a.nr_seryjny
+    FROM user_batteries ub
+    JOIN autopart_akumulatory a ON ub.battery_id = a.id
+    WHERE ub.id = ? AND ub.user_id = ?
 ");
-$stmt->execute([$id, $user['id']]);
+$stmt->execute([$id, $user_id]);
+
 $battery = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$battery) {
-  echo "<p>Nie znaleziono akumulatora.</p>";
-  include 'includes/footer.php';
-  exit;
+    die("❌ Brak dostępu!");
 }
 
-// Pobierz wszystkie pojazdy użytkownika
-$stmt = $db->prepare("SELECT id, brand, model, vin FROM vehicles WHERE user_id = ?");
-$stmt->execute([$user['id']]);
-$vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+/**************************************
+ * Pobranie aut użytkownika
+ **************************************/
+$cars_stmt = $db->prepare("SELECT * FROM vehicles WHERE user_id = ?");
+$cars_stmt->execute([$user_id]);
+$user_cars = $cars_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+/**************************************
+ * Zapis zmian
+ **************************************/
+if (isset($_POST["save"])) {
+
+    $vehicle_id = !empty($_POST["vehicle_id"]) ? $_POST["vehicle_id"] : null;
+    $purchase_place = trim($_POST["purchase_place"]);
+    $purchase_date = $_POST["purchase_date"];
+    $notes = trim($_POST["notes"]);
+
+    $battery_img = $battery["battery_image"];
+    $receipt_img = $battery["receipt_image"];
+
+    if (!empty($_FILES["battery_image"]["name"])) {
+        $battery_img = "uploads/batteries/" . time() . "_" . basename($_FILES["battery_image"]["name"]);
+        move_uploaded_file($_FILES["battery_image"]["tmp_name"], $battery_img);
+    }
+
+    if (!empty($_FILES["receipt_image"]["name"])) {
+        $receipt_img = "uploads/receipts/" . time() . "_" . basename($_FILES["receipt_image"]["name"]);
+        move_uploaded_file($_FILES["receipt_image"]["tmp_name"], $receipt_img);
+    }
+
+    $upd = $db->prepare("
+        UPDATE user_batteries
+        SET vehicle_id = ?, purchase_place = ?, purchase_date = ?, 
+            battery_image = ?, receipt_image = ?, notes = ?
+        WHERE id = ? AND user_id = ?
+    ");
+
+    $upd->execute([
+        $vehicle_id,
+        $purchase_place,
+        $purchase_date,
+        $battery_img,
+        $receipt_img,
+        $notes,
+        $id,
+        $user_id
+    ]);
+
+    header("Location: user_batteries.php?msg=updated");
+    exit;
+}
+
+include "includes/header.php";
 ?>
 
-<section class="garage">
-  <div class="garage-header">
-    <h1>✏️ Edytuj akumulator</h1>
-    <a href="my_batteries.php" class="btn-vin">← Wróć</a>
-  </div>
+<main>
+<h1>✏️ Edycja akumulatora</h1>
 
-  <form action="user_battery_action.php" method="post" enctype="multipart/form-data" class="card">
-    <input type="hidden" name="action" value="edit">
-    <input type="hidden" name="id" value="<?= htmlspecialchars($battery['id']) ?>">
+<div class="card">
 
-    <h2><?= htmlspecialchars($battery['battery_model']) ?> (SN: <?= htmlspecialchars($battery['serial_number']) ?>)</h2>
+    <h2><?= $battery["producent"] ?> — <?= $battery["numer_katalogowy"] ?></h2>
+    <p><strong>Numer seryjny:</strong> <?= $battery["nr_seryjny"] ?></p>
 
-    <label>Przypisany pojazd</label>
-    <select name="vehicle_id">
-      <option value="">— Brak —</option>
-      <?php foreach ($vehicles as $v): ?>
-        <option value="<?= $v['id'] ?>" <?= $battery['vehicle_id'] == $v['id'] ? 'selected' : '' ?>>
-          <?= htmlspecialchars($v['brand'].' '.$v['model'].' ('.$v['vin'].')') ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
+    <form method="POST" enctype="multipart/form-data">
 
-    <label>Miejsce zakupu</label>
-    <input type="text" name="purchase_place" value="<?= htmlspecialchars($battery['purchase_place']) ?>" placeholder="np. AutoLand Kraków">
+        <label>Samochód:</label>
+        <select name="vehicle_id">
+            <option value="">— bez przypisania —</option>
 
-    <label>Data zakupu</label>
-    <input type="date" name="purchase_date" value="<?= htmlspecialchars($battery['purchase_date']) ?>">
+            <?php foreach ($user_cars as $car): ?>
+                <option value="<?= $car['id'] ?>" 
+                    <?= $battery["vehicle_id"] == $car['id'] ? "selected" : "" ?>>
+                    <?= $car['brand'] ?> <?= $car['model'] ?> (<?= $car['year'] ?>)
+                </option>
+            <?php endforeach; ?>
+        </select>
 
-    <div class="image-section">
-      <label>Zdjęcie akumulatora</label><br>
-      <?php if (!empty($battery['battery_image'])): ?>
-        <img src="<?= htmlspecialchars($battery['battery_image']) ?>" alt="Akumulator" class="car-thumb" style="max-width:160px; margin-bottom:10px;">
-      <?php endif; ?>
-      <input type="file" name="battery_image" accept="image/*">
-    </div>
+        <label>Miejsce zakupu:</label>
+        <input type="text" name="purchase_place" value="<?= $battery['purchase_place'] ?>">
 
-    <div class="image-section">
-      <label>Zdjęcie paragonu</label><br>
-      <?php if (!empty($battery['receipt_image'])): ?>
-        <a href="<?= htmlspecialchars($battery['receipt_image']) ?>" target="_blank">
-          <img src="<?= htmlspecialchars($battery['receipt_image']) ?>" alt="Paragon" class="car-thumb" style="max-width:160px; margin-bottom:10px;">
-        </a>
-      <?php endif; ?>
-      <input type="file" name="receipt_image" accept="image/*">
-    </div>
+        <label>Data zakupu:</label>
+        <input type="date" name="purchase_date" value="<?= $battery['purchase_date'] ?>">
 
-    <label>Uwagi</label>
-    <textarea name="notes" rows="3"><?= htmlspecialchars($battery['notes']) ?></textarea>
+        <label>Zdjęcie akumulatora:</label>
+        <?php if ($battery["battery_image"]): ?>
+            <p><img src="<?= $battery["battery_image"] ?>" style="max-width:200px;"></p>
+        <?php endif; ?>
+        <input type="file" name="battery_image">
 
-    <button type="submit" class="btn">💾 Zapisz zmiany</button>
-  </form>
-</section>
+        <label>Paragon:</label>
+        <?php if ($battery["receipt_image"]): ?>
+            <p><img src="<?= $battery["receipt_image"] ?>" style="max-width:200px;"></p>
+        <?php endif; ?>
+        <input type="file" name="receipt_image">
 
-<style>
-<?php include 'assets/css/garage.css'; ?>
-.image-section img {
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border: 1px solid #ccc;
-}
-body.dark .image-section img {
-  border-color: #2c2f33;
-  box-shadow: 0 4px 12px rgba(255,255,255,0.05);
-}
-</style>
+        <label>Uwagi:</label>
+        <textarea name="notes"><?= $battery["notes"] ?></textarea>
 
-<?php include 'includes/footer.php'; ?>
+        <button type="submit" name="save">Zapisz zmiany</button>
+
+    </form>
+</div>
+
+</main>
+
+<?php include "includes/footer.php"; ?>

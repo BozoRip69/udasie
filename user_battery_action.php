@@ -1,47 +1,77 @@
 <?php
-require 'config.php';
+require_once "config.php";
+
 $user = require_login($db);
+$user_id = $user["id"];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $action = $_POST['action'] ?? '';
-
-  if ($action === 'add') {
-    $battery_id = $_POST['battery_id'];
-    $vehicle_id = $_POST['vehicle_id'] ?: null;
-    $place = $_POST['purchase_place'] ?: null;
-    $date = $_POST['purchase_date'] ?: null;
-    $notes = $_POST['notes'] ?: null;
-
-    $uploadDir = 'uploads/user_batteries/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-
-    $battery_image = null;
-    $receipt_image = null;
-
-    if (!empty($_FILES['battery_image']['tmp_name'])) {
-      $file = $uploadDir . uniqid('bat_') . '.' . pathinfo($_FILES['battery_image']['name'], PATHINFO_EXTENSION);
-      move_uploaded_file($_FILES['battery_image']['tmp_name'], $file);
-      $battery_image = $file;
-    }
-
-    if (!empty($_FILES['receipt_image']['tmp_name'])) {
-      $file = $uploadDir . uniqid('rec_') . '.' . pathinfo($_FILES['receipt_image']['name'], PATHINFO_EXTENSION);
-      move_uploaded_file($_FILES['receipt_image']['tmp_name'], $file);
-      $receipt_image = $file;
-    }
-
-    $stmt = $db->prepare("INSERT INTO user_batteries (user_id, vehicle_id, battery_id, purchase_place, purchase_date, battery_image, receipt_image, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$user['id'], $vehicle_id, $battery_id, $place, $date, $battery_image, $receipt_image, $notes]);
-
-    header("Location: my_batteries.php");
-    exit;
-  }
-
-  if ($action === 'delete' && !empty($_POST['id'])) {
-    $stmt = $db->prepare("DELETE FROM user_batteries WHERE id = ? AND user_id = ?");
-    $stmt->execute([$_POST['id'], $user['id']]);
-    header("Location: my_batteries.php");
-    exit;
-  }
+if (!isset($_POST["action"]) || !isset($_POST["id"])) {
+    die("Brak danych!");
 }
-?>
+
+$action = $_POST["action"];
+$id = intval($_POST["id"]);
+
+// ---------- DODANIE POMIARU (teraz: wpis do historii + aktualizacja ostatniego pomiaru + alert) ----------
+if ($action === "add_measurement") {
+
+    $cca = isset($_POST["cca"]) && $_POST["cca"] !== "" ? intval($_POST["cca"]) : null;
+    $voltage = isset($_POST["voltage"]) && $_POST["voltage"] !== "" ? floatval($_POST["voltage"]) : null;
+
+    // Weryfikacja właściciela rekordu user_batteries
+    $check = $db->prepare("SELECT id, user_id FROM user_batteries WHERE id = ? AND user_id = ?");
+    $check->execute([$id, $user_id]);
+    if ($check->rowCount() == 0) {
+        die("❌ Brak dostępu!");
+    }
+
+    // 1) Wpis do tabeli historycznej
+    $ins = $db->prepare("
+        INSERT INTO battery_measurements (user_id, user_battery_id, cca, voltage, measured_at)
+        VALUES (?, ?, ?, ?, NOW())
+    ");
+    $ins->execute([$user_id, $id, $cca, $voltage]);
+
+    // 2) Aktualizacja ostatniego pomiaru w user_batteries (dla szybkiego podglądu)
+    $upd = $db->prepare("
+        UPDATE user_batteries
+        SET cca_measurement = ?, voltage_measurement = ?, measured_at = NOW()
+        WHERE id = ? AND user_id = ?
+    ");
+    $upd->execute([$cca, $voltage, $id, $user_id]);
+
+    // 3) Sprawdź próg CCA i utwórz powiadomienie jeśli poniżej
+    // Możesz zmienić próg globalnie — tu przykładowo 600A
+    $cca_threshold = 600;
+
+    if ($cca !== null && $cca < $cca_threshold) {
+        $msg = "Uwaga — akumulator (ID: $id) ma niski CCA: {$cca}A (próg: {$cca_threshold}A).";
+        $note = $db->prepare("INSERT INTO notifications (user_id, type, content, link, is_read) VALUES (?, 'system', ?, ?, 0)");
+        // link możesz ustawić do edycji/pomiarów
+        $link = "user_batteries.php";
+        $note->execute([$user_id, $msg, $link]);
+        // Możemy też przekazać parametr w redirect żeby pokazać alert od razu:
+        header("Location: user_batteries.php?msg=measurement_added&lowcca=1&battery_id=$id");
+        exit;
+    }
+
+    header("Location: user_batteries.php?msg=measurement_added");
+    exit;
+}
+
+// ---------- USUWANIE ----------
+if ($action === "delete") {
+    $check = $db->prepare("SELECT id FROM user_batteries WHERE id = ? AND user_id = ?");
+    $check->execute([$id, $user_id]);
+
+    if ($check->rowCount() == 0) {
+        die("❌ Brak dostępu!");
+    }
+
+    $del = $db->prepare("DELETE FROM user_batteries WHERE id = ?");
+    $del->execute([$id]);
+
+    header("Location: user_batteries.php?msg=deleted");
+    exit;
+}
+
+echo "Nieznana akcja!";

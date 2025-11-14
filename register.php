@@ -1,52 +1,121 @@
 <?php
-require 'config.php';
+require_once "config.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $first = trim($_POST['first_name']);
-    $last = trim($_POST['last_name']);
-    $email = trim($_POST['email']);
-    $countryCode = $_POST['country_code'];
-    $phone = preg_replace('/\D/', '', $_POST['phone']);
-    $address = trim($_POST['address']);
-    $pass = $_POST['password'];
-    $confirm = $_POST['confirm'];
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $first_name    = trim($_POST["first_name"]);
+    $last_name     = trim($_POST["last_name"]);
+    $email         = trim($_POST["email"]);
+    $confirm_email = trim($_POST["confirm_email"]);
+    $country_code  = trim($_POST["country_code"]);
+    $phone         = trim($_POST["phone"]);
+    $password      = trim($_POST["password"]);
+    $confirm_pass  = trim($_POST["confirm_pass"]);
 
-    if ($pass !== $confirm) {
-        die("<script>alert('Hasła nie są takie same!');history.back();</script>");
-    }
-
-    // sprawdź czy użytkownik istnieje
-    $check = $db->prepare("SELECT id FROM users WHERE email = ?");
-    $check->execute([$email]);
-    if ($check->fetch()) {
-        die("<script>alert('Użytkownik o tym adresie e-mail już istnieje.');history.back();</script>");
-    }
-
-    // haszuj hasło
-    $hash = password_hash($pass, PASSWORD_BCRYPT);
-    $created = date('Y-m-d H:i:s');
-    $token = generateSessionToken();
-
-    // avatar
-    $avatarPath = 'default-avatar.png';
-    if (!empty($_FILES['avatar']['name'])) {
-        $uploadDir = 'uploads/avatars/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-        $fileName = time().'_'.basename($_FILES['avatar']['name']);
-        $target = $uploadDir.$fileName;
-        if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target)) {
-            $avatarPath = $target;
+    // Walidacja pól
+    if (
+        empty($first_name) || empty($last_name) ||
+        empty($email) || empty($confirm_email) ||
+        empty($password) || empty($confirm_pass)
+    ) {
+        $error = "Wypełnij wszystkie wymagane pola.";
+    } elseif ($email !== $confirm_email) {
+        $error = "Adresy e-mail muszą być identyczne.";
+    } elseif ($password !== $confirm_pass) {
+        $error = "Hasła muszą być identyczne.";
+    } else {
+        // Sprawdź, czy e-mail już istnieje
+        $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetch()) {
+            $error = "Konto z tym adresem e-mail już istnieje.";
+        } else {
+            // Zapis nowego użytkownika
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $db->prepare("INSERT INTO users (first_name, last_name, email, country_code, phone, password) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$first_name, $last_name, $email, $country_code, $phone, $hashed_password]);
+            $success = "Konto zostało utworzone! Możesz się teraz zalogować.";
         }
     }
-
-    // dodaj użytkownika
-    $stmt = $db->prepare("INSERT INTO users 
-        (first_name, last_name, email, country_code, phone, address, password, avatar, created_at, session_token)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$first, $last, $email, $countryCode, $phone, $address, $hash, $avatarPath, $created, $token]);
-
-    $_SESSION['user_email'] = $email;
-    header("Location: dashboard.php");
-    exit;
 }
 ?>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rejestracja - AutoPart</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="auth-body">
+<div class="auth-container">
+  <h2>Załóż konto</h2>
+
+  <?php if (!empty($error)): ?>
+      <p style="color: red; text-align:center;"><?php echo htmlspecialchars($error); ?></p>
+  <?php elseif (!empty($success)): ?>
+      <p style="color: green; text-align:center;"><?php echo htmlspecialchars($success); ?></p>
+  <?php endif; ?>
+
+  <form action="register.php" method="post" onsubmit="return validateForm()">
+    <label>Imię</label>
+    <input type="text" name="first_name" required>
+
+    <label>Nazwisko</label>
+    <input type="text" name="last_name" required>
+
+    <label>Adres e-mail</label>
+    <input type="email" id="email" name="email" required>
+
+    <label>Powtórz adres e-mail</label>
+    <input type="email" id="confirm_email" name="confirm_email" required>
+
+    <label>Numer telefonu</label>
+    <div class="phone-input-wrapper">
+      <select name="country_code" required>
+        <option value="+48" selected>🇵🇱 +48</option>
+        <option value="+49">🇩🇪 +49</option>
+        <option value="+44">🇬🇧 +44</option>
+        <option value="+420">🇨🇿 +420</option>
+        <option value="+421">🇸🇰 +421</option>
+        <option value="+33">🇫🇷 +33</option>
+        <option value="+39">🇮🇹 +39</option>
+        <option value="+1">🇺🇸 +1</option>
+      </select>
+      <input type="text" id="phone" name="phone" placeholder="123 456 789" maxlength="11" required>
+    </div>
+
+    <label>Hasło</label>
+    <input type="password" id="password" name="password" required>
+
+    <label>Powtórz hasło</label>
+    <input type="password" id="confirm_pass" name="confirm_pass" required>
+
+    <button type="submit">Zarejestruj</button>
+    <p>Masz już konto? <a href="login.php">Zaloguj się</a></p>
+  </form>
+</div>
+
+<script>
+// Walidacja front-endowa
+function validateForm() {
+  const email = document.getElementById("email").value;
+  const confirmEmail = document.getElementById("confirm_email").value;
+  const pass = document.getElementById("password").value;
+  const confirmPass = document.getElementById("confirm_pass").value;
+
+  if (email !== confirmEmail) {
+    alert("Adresy e-mail muszą być identyczne!");
+    return false;
+  }
+
+  if (pass !== confirmPass) {
+    alert("Hasła muszą być identyczne!");
+    return false;
+  }
+
+  return true;
+}
+</script>
+
+</body>
+</html>
